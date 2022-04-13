@@ -1,7 +1,6 @@
 # Packages
 import os
 
-
 def find_path_nextcloud():
     # Bestimmung des aktuellen Pfads
     current_path = os.path.abspath(os.getcwd())
@@ -17,8 +16,3 @@ def find_path_nextcloud():
         path_nextcloud = path_nextcloud_timo.read()
 
     return path_nextcloud
-
-
-print(find_path_nextcloud())
-
-print('Fertig!')
