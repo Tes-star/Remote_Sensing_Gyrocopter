@@ -9,19 +9,18 @@ from Daten_einlesen.find_path_nextcloud import find_path_nextcloud
 path_nextcloud = find_path_nextcloud()
 
 # Pfad Daten
-path_hdr = path_nextcloud + "Daten_Gyrocopter/Zusammengefuehrte_Daten/Oldenburg_combined.hdr"
-path_dat = path_nextcloud + "Daten_Gyrocopter/Zusammengefuehrte_Daten/Oldenburg_combined.dat"
+path_hdr = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Oldenburg_combined_HSI_THERMAL_DOM.hdr"
+path_dat = path_hdr[:-4] + ".dat"
 
 # Zusammengeführtes Bild öffnen
 img_original = envi.open(file=path_hdr, image=path_dat)
-imshow(img_original, bands=(59, 26, 1), figsize=(20, 20))
 
 # Festlegung, welches Grid zusammengelegt werden soll
-windowsize_r = 500
-windowsize_c = 500
+windowsize_r = 250
+windowsize_c = 250
 
 # Bestimmung grid Ordnername
-grid_folder = path_nextcloud + "Daten_Gyrocopter/Teilbilder_Oldenburg/grid_" + str(windowsize_r) + "_" + str(
+grid_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_" + str(windowsize_r) + "_" + str(
     windowsize_c)
 
 # Pfad + Dateiname der .hdr-Datei des zusammengeführten Bildes festlegen
@@ -40,7 +39,7 @@ writer = grid.open_memmap(writable=True)
 # liste aller Dateien in Gridordner erstellen
 files = os.listdir(grid_folder)
 
-# Aus Liste files .hdr dateien löschen
+# Aus Liste files .hdr Dateien löschen
 for file in files:
     if file.endswith('.hdr'):
         files.remove(file)
@@ -81,14 +80,15 @@ for file in files:
 # Vergleich ob Originalbild == Gridbild
 
 # Originalbild laden
-path_hdr = path_nextcloud + "Daten_Gyrocopter/Zusammengefuehrte_Daten/Oldenburg_combined.hdr"
-path_dat = path_nextcloud + "Daten_Gyrocopter/Zusammengefuehrte_Daten/Oldenburg_combined.dat"
-img_original = envi.open(file=path_hdr, image=path_dat)
 img_original = img_original.open_memmap(writable=False)
 
 # Gridbild laden
-path_hdr = path_nextcloud + "Daten_Gyrocopter/Teilbilder_Oldenburg/grid_500_500/grid_image.hdr"
-path_dat = path_nextcloud + "Daten_Gyrocopter/Teilbilder_Oldenburg/grid_500_500/grid_image.dat"
+grid_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_" + str(windowsize_r) + "_" + str(
+    windowsize_c)
+
+path_hdr = grid_folder + "/grid_image.hdr"
+path_dat = grid_folder + "/grid_image.dat"
+
 img_grid = envi.open(file=path_hdr, image=path_dat)
 img_grid_data = img_grid.open_memmap(writable=False)
 
@@ -99,7 +99,6 @@ if np.all(img_grid_data == img_original):
 else:
     # Bilder nicht identisch
     print("Fehler: Image_grid entspricht nicht Image_original!!!")
-
 
 print("Image vor Split vs nach Split")
 # Bilder ausgeben

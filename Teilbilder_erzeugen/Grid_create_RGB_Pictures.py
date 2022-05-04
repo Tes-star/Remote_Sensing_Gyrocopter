@@ -7,11 +7,11 @@ from Daten_einlesen.find_path_nextcloud import find_path_nextcloud
 path_nextcloud = find_path_nextcloud()
 
 # Festlegung, welches Grid zusammengelegt werden soll
-windowsize_r = 500
-windowsize_c = 500
+windowsize_r = 250
+windowsize_c = 250
 
 # Bestimmung grid Ordnername
-grid_folder = path_nextcloud + "Daten_Gyrocopter/Teilbilder_Oldenburg/grid_" + str(windowsize_r) + "_" + str(
+grid_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_" + str(windowsize_r) + "_" + str(
     windowsize_c)
 
 
