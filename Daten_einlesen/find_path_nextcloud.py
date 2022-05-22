@@ -13,8 +13,8 @@ def find_path_nextcloud():
         path_nextcloud_fg = open('../Daten_einlesen/path_nextcloud_fgrassxx.txt')
         path_nextcloud = path_nextcloud_fg.read()
 
-    elif 'Timo' in current_path:
-        path_nextcloud_timo = open('path_nextcloud_timo.txt')
+    if 'Timo' in current_path:
+        path_nextcloud_timo = open('../Daten_einlesen/path_nextcloud_timo.txt')
         path_nextcloud = path_nextcloud_timo.read()
 
     if 'vdwti' in current_path:
