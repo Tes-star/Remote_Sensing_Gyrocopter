@@ -81,8 +81,7 @@ def split_image(hdr_file: str, dat_file: str, window_width: int, window_height: 
 
             # define export hdf-filename
             path_window = grid_folder + "/Teilbild_" + export_title + '_' + str(grid_r).zfill(8) + "_" + str(
-                grid_c).zfill(
-                8) + "_" + str(r) + "_" + str(c) + "_.hdr"
+                grid_c).zfill(8) + "_" + str(r) + "_" + str(c) + "_.hdr"
 
             # save Subimage
             envi.save_image(hdr_file=path_window, image=window,
@@ -173,6 +172,56 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
 
     return big_picture
 
+
+def save_subimages_rgb(path_grid_subimages: str, rgb_band:tuple):
+
+    # extract grid_size
+    window_width, window_height = path_grid_subimages.split('/')[-1].split('_')[-2:]
+    windowsize_r = int(window_width)
+    windowsize_c = int(window_height)
+
+    # define grid_folder
+    grid_folder = path_grid_subimages
+
+    # Select all .dat Subimages
+
+    # build list with all files in grid_folder
+    files_lst = os.listdir(grid_folder)
+
+    # remove unwanted files from files_lst
+    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb']
+    for pattern in unwanted_pattern:
+        for file in files_lst:
+            if pattern in file:
+                files_lst.remove(file)
+
+    # build rgb folder
+    path_grid_rgb = grid_folder + '/rgb'
+    if not os.path.exists(path_grid_rgb):
+        os.makedirs(path_grid_rgb)
+
+    # build rgb subimages
+    for file in files_lst:
+
+        # extract grid position from grid filename which has a name convention
+        file_split = file.split('_')
+        grid_pos_r = int(file_split[2]) * windowsize_r  # Gridposition row
+        grid_pos_c = int(file_split[3]) * windowsize_c  # Gridposition column
+        # Namenskonvention durchführen
+        rgb_name = path_grid_rgb + "/Teilbild_Oldenburg_" + str(file_split[2]).zfill(8) + "_" + str(
+            file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c) + "_.jpg"
+
+        # Pfade definieren
+        path_hdr = grid_folder + '/' + file[:-4] + '.hdr'
+        path_dat = grid_folder + '/' + file[:-4] + '.dat'
+
+        # Teilbilder laden
+        img = envi.open(file=path_hdr, image=path_dat)
+
+        # RGB für Teilbilder erstellen
+        spy.save_rgb(filename=rgb_name, data=img, bands=rgb_band, stretch=(0.1,0.99), stretch_all = True)
+
+
 if __name__ == '__main__':
 
     # define shared could path
@@ -195,5 +244,7 @@ if __name__ == '__main__':
     # combine subimages to big picture
     big_picture = combine_subimages(hdr_file=path_hdr, dat_file=path_dat, path_grid_subimages=path_grid_folder)
 
+    # save subimages as rgb
+    save_subimages_rgb(path_grid_subimages = path_grid_folder, rgb_band = (59, 26, 1))
 
     print('Fertig')
