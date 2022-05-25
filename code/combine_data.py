@@ -1,7 +1,7 @@
 # Import Packages
 import numpy as np
 from spectral import envi
-from code.find_path_nextcloud import find_path_nextcloud
+from find_path_nextcloud import find_path_nextcloud
 
 print('Anfang')
 
