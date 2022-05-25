@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import spectral as spy
 from spectral import envi
 from find_path_nextcloud import find_path_nextcloud
@@ -35,6 +36,58 @@ def print_overview(hdr_file: str, dat_file: str):
 
 def plot_hsi_image(hdr_file: str, dat_file: str, bands: tuple, stretch: tuple):
     pass
+
+
+def combine_image_bands(path_data: str,
+                        hdr_file_hsi: str, dat_file_hsi: str,
+                        hdr_file_thermal: str, dat_file_thermal: str,
+                        hdr_file_dom: str, dat_file_dom: str,
+                        export_title: str):
+
+    # read hyperspectral image
+    path_hdr = path_data + '/' + hdr_file_hsi
+    path_dat = path_data + '/' + dat_file_hsi
+    img_his = envi.open(file=path_hdr, image=path_dat)
+
+    ## read thermal image
+    path_hdr = path_data + '/' + hdr_file_thermal
+    path_dat = path_data + '/' + dat_file_thermal
+    img_thermal = envi.open(file=path_hdr, image=path_dat)
+
+    # read dom image
+    path_hdr = path_data + '/' + hdr_file_dom
+    path_dat = path_data + '/' + dat_file_dom
+    img_dom = envi.open(file=path_hdr, image=path_dat)
+
+    # load arrays
+    arr_his = img_his.load()
+    arr_thermal = img_thermal.load()
+    arr_dom = img_dom.load()
+
+    # add band to the last position(s)
+    combined_arr = np.concatenate((arr_his, arr_thermal), -1)
+    combined_arr = np.concatenate((combined_arr, arr_dom), -1)
+
+    # add new band information in metadata
+    new_bands = ['thermal', 'dom']
+    arr_metadata = img_his.metadata
+
+    for new_band in new_bands:
+        arr_metadata['wavelength'].append(new_band)
+        arr_metadata['band names'].append(new_band)
+        arr_metadata['fwhm'].append(new_band)
+
+    # change number of bands
+    arr_metadata['bands'] = len(arr_metadata['wavelength'])
+
+    # save combined image
+    path_out = path_data + '/' + export_title + "_combined_HSI_THERMAL_DOM.hdr"
+
+    envi.save_image(hdr_file=path_out, image=combined_arr,
+                    dtype="float32", ext='.dat', interleave='bsq',
+                    metadata=arr_metadata, force=True)
+
+    return path_out
 
 
 def split_image(hdr_file: str, dat_file: str, window_width: int, window_height: int, export_path: str,
@@ -136,7 +189,8 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
                 files_lst.remove(file)
 
     # define big picture name
-    path_big_picture_hdr = grid_folder + '/grid_' + str(windowsize_r) + '_' + str(windowsize_c) + '_combined_big_picture.hdr'
+    path_big_picture_hdr = grid_folder + '/grid_' + str(windowsize_r) + '_' + str(
+        windowsize_c) + '_combined_big_picture.hdr'
 
     # build empty envi file with matching dimension
     grid = envi.create_image(hdr_file=path_big_picture_hdr, metadata=img.metadata, dtype="float32", ext='.dat',
@@ -173,8 +227,7 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
     return big_picture
 
 
-def save_subimages_rgb(path_grid_subimages: str, rgb_band:tuple):
-
+def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
     # extract grid_size
     window_width, window_height = path_grid_subimages.split('/')[-1].split('_')[-2:]
     windowsize_r = int(window_width)
@@ -202,7 +255,6 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band:tuple):
 
     # build rgb subimages
     for file in files_lst:
-
         # extract grid position from grid filename which has a name convention
         file_split = file.split('_')
         grid_pos_r = int(file_split[2]) * windowsize_r  # Gridposition row
@@ -219,32 +271,35 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band:tuple):
         img = envi.open(file=path_hdr, image=path_dat)
 
         # RGB für Teilbilder erstellen
-        spy.save_rgb(filename=rgb_name, data=img, bands=rgb_band, stretch=(0.1,0.99), stretch_all = True)
+        spy.save_rgb(filename=rgb_name, data=img, bands=rgb_band, stretch=(0.1, 0.99), stretch_all=True)
 
 
 if __name__ == '__main__':
-
-    # define shared could path
-    path_nextcloud = find_path_nextcloud()
-
     # define path with data
-    path_folder = path_nextcloud + 'Daten_Gyrocopter/Oldenburg/'
+    path_folder = '../data'
 
     # define HSI filenames
-    path_hdr = path_folder + 'Oldenburg_HSI.hdr'
-    path_dat = path_folder + 'Oldenburg_HSI.dat'
+    path_hdr = path_folder + '/Teilbild_Oldenburg_HSI.hdr'
+    path_dat = path_folder + '/Teilbild_Oldenburg_HSI.dat'
 
     # read image and print infos
     print_overview(hdr_file=path_hdr, dat_file=path_dat)
 
+    # combine HSI, THERMAL and DOM image
+    combine_image_bands(path_data=path_folder,
+                        hdr_file_hsi='Teilbild_Oldenburg_HSI.hdr', dat_file_hsi='Teilbild_Oldenburg_HSI.dat',
+                        hdr_file_thermal='Teilbild_Oldenburg_THERMAL.hdr', dat_file_thermal='Teilbild_Oldenburg_THERMAL.dat',
+                        hdr_file_dom='Teilbild_Oldenburg_DOM.hdr', dat_file_dom='Teilbild_Oldenburg_DOM.dat',
+                        export_title='Teilbild_Oldenburg')
+
     # split image in subimages
-    path_grid_folder = split_image(hdr_file=path_hdr, dat_file=path_dat, window_width=1000, window_height=1000,
+    path_grid_folder = split_image(hdr_file=path_hdr, dat_file=path_dat, window_width=100, window_height=100,
                                    export_path='C:/Users/fgrassxx/Desktop', export_title='Oldenburg', stop_after_row=1)
 
     # combine subimages to big picture
     big_picture = combine_subimages(hdr_file=path_hdr, dat_file=path_dat, path_grid_subimages=path_grid_folder)
 
     # save subimages as rgb
-    save_subimages_rgb(path_grid_subimages = path_grid_folder, rgb_band = (59, 26, 1))
+    save_subimages_rgb(path_grid_subimages=path_grid_folder, rgb_band=(59, 26, 1))
 
     print('Fertig')
