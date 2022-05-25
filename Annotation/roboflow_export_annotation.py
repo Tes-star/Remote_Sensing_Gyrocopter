@@ -1,7 +1,6 @@
 import io
 import os
 
-import matplotlib
 import numpy as np
 import xmltodict as xmltodict
 import matplotlib.pyplot as plt
@@ -12,10 +11,9 @@ from matplotlib.collections import PatchCollection
 # matplotlib.use('Agg')
 
 # Import Packages
-from spectral import open_image, imshow
 from spectral.io import envi
 #from spectral import *
-from Daten_einlesen.find_path_nextcloud import find_path_nextcloud
+from code.find_path_nextcloud import find_path_nextcloud
 
 # Pfad Nextcloud bestimmen
 path_nextcloud = find_path_nextcloud()

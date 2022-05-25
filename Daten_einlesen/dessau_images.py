@@ -1,7 +1,6 @@
 from spectral import *
-import matplotlib.pyplot as plt
 from spectral import envi
-from Daten_einlesen.find_path_nextcloud import find_path_nextcloud
+from find_path import find_path_nextcloud
 
 
 print('Anfang')

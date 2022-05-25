@@ -1,7 +1,7 @@
 # Import Packages
 import os
 from spectral import *
-from Daten_einlesen.find_path_nextcloud import find_path_nextcloud
+from code.find_path_nextcloud import find_path_nextcloud
 
 # Pfad Nextcloud bestimmen
 path_nextcloud = find_path_nextcloud()

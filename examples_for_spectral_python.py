@@ -1,5 +1,5 @@
 from spectral.algorithms.algorithms import TrainingClass, TrainingClassSet
-from Daten_einlesen.find_path_nextcloud import find_path_nextcloud
+from code.find_path_nextcloud import find_path_nextcloud
 from spectral import *
 import numpy as np
 
