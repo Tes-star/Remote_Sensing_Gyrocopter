@@ -1,8 +1,10 @@
 import os
+import cv2
 import numpy as np
 import spectral as spy
 from spectral import envi
-from find_path_nextcloud import find_path_nextcloud
+import xmltodict as xmltodict
+import matplotlib.pyplot as plt
 
 """
 Spectral Python (SPy) Functions
@@ -274,6 +276,98 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
         spy.save_rgb(filename=rgb_name, data=img, bands=rgb_band, stretch=(0.1, 0.99), stretch_all=True)
 
 
+def convert_xml_annotation_to_mask(path_data:str, xml_file:str):
+
+    path_xml_file = path_data + '/' + xml_file
+    # read xml-file and convert to dictionary
+    with open(path_xml_file) as fd:
+        doc = xmltodict.parse(fd.read())
+
+    # extract image size
+    windowsize_r = int(doc['annotation']['size']['width'])
+    windowsize_c = int(doc['annotation']['size']['height'])
+
+    # extract image name and calculate grid position
+    filename = doc['annotation']['filename']
+    file_split = filename.split('_')
+    grid_pos_r = int(file_split[2]) * windowsize_r  # Gridposition row
+    grid_pos_c = int(file_split[3]) * windowsize_c  # Gridposition column
+
+    # build original_name
+    original_name = path_data + "/" + file_split[0] + "_" + file_split[1] + "_" + str(file_split[2]).zfill(8) + "_" + \
+                    str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
+    # define export name
+    export_name = path_data + "/" + file_split[0] + "_" + file_split[1] + "_labeled_" + str(file_split[2]).zfill(8) + \
+                  "_" + str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
+
+    # define annotated objects in dictionary
+    class_objects = {1:'Wiese', 2:'Straße', 3:'Auto', 4:'See', 5:'Schienen', 6:'Haus', 7:'Wald'}
+
+    # build array with same shape as annotated picture
+    # 0 = standard value for unannotated pixels
+    mask = np.zeros((windowsize_r,windowsize_c,1))
+
+    # do for every annotated objects in objects
+    for class_key, class_value in class_objects.items():
+
+        # do for every polygon in annotated picture
+        for annotation_object in doc['annotation']['object']:
+
+            # initialization empty list for coordinates from polygon
+            coords = []
+
+            # extract polygon coordinates and name of Klass
+            polygon = annotation_object['polygon']
+            name = annotation_object['name']
+
+            # skip if current polygon class is not class_value
+            if class_value != name:
+                continue
+
+            # extract all coordinates from polygon in list format [[x1,y1], [x2,y2], ...]
+            for i in range(1, int(len(polygon) / 2) + 1):
+                point = [int((float(polygon['x' + str(i)]))), int(float(polygon['y' + str(i)]))]
+                coords.append(point)
+
+            # convert list to array
+            coords = np.array(coords, dtype=np.int32)
+
+            # use cv2.fillPoly to convert area in polygon to mask with obj_key as value in dat_holder_matrix
+            mask = cv2.fillPoly(mask, [coords], class_key)
+
+
+    plt.imshow(mask)
+    plt.show()
+
+    # read original_name
+    path_dat = original_name +'_.dat'
+    path_hdr = original_name +'_.hdr'
+    img = envi.open(file=path_hdr, image=path_dat)
+    img_arr = img.load()
+
+    # add label array at the last band to image array
+    combined_arr = np.concatenate((img_arr, mask), -1)
+
+    # extract metadata
+    arr_metadata = img.metadata
+
+    # add label information
+    arr_metadata['wavelength'].append('label')
+    arr_metadata['band names'].append('label')
+    arr_metadata['fwhm'].append('label')
+
+    # change number of bands
+    arr_metadata['bands'] = len(arr_metadata['wavelength'])
+
+    # define export path
+    path_hdr_labeled = path_data + '/' + export_name + '_.hdr'
+
+    # envi.save_image(hdr_file=path_hdr_labeled, image=combined_arr, metadata=arr_metadata, dtype="float32", ext='.dat',
+    #                 interleave='bsq', force=True)
+
+    return img_arr, mask
+
+
 if __name__ == '__main__':
     # define path with data
     path_folder = '../data'
@@ -293,13 +387,16 @@ if __name__ == '__main__':
                         export_title='Teilbild_Oldenburg')
 
     # split image in subimages
-    path_grid_folder = split_image(hdr_file=path_hdr, dat_file=path_dat, window_width=100, window_height=100,
-                                   export_path='C:/Users/fgrassxx/Desktop', export_title='Oldenburg', stop_after_row=1)
+    path_grid_folder = split_image(hdr_file=path_hdr, dat_file=path_dat, window_width=200, window_height=200,
+                                   export_path='../data', export_title='Oldenburg', stop_after_row=1)
 
     # combine subimages to big picture
     big_picture = combine_subimages(hdr_file=path_hdr, dat_file=path_dat, path_grid_subimages=path_grid_folder)
 
     # save subimages as rgb
     save_subimages_rgb(path_grid_subimages=path_grid_folder, rgb_band=(59, 26, 1))
+
+    # export annotated polygon as mask
+    convert_xml_annotation_to_mask(path_data='../data/Oldenburg_grid_200_200', xml_file='Teilbild_Oldenburg_Annotation.xml')
 
     print('Fertig')
