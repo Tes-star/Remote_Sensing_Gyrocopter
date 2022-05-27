@@ -45,7 +45,6 @@ def combine_image_bands(path_data: str,
                         hdr_file_thermal: str, dat_file_thermal: str,
                         hdr_file_dom: str, dat_file_dom: str,
                         export_title: str):
-
     # read hyperspectral image
     path_hdr = path_data + '/' + hdr_file_hsi
     path_dat = path_data + '/' + dat_file_hsi
@@ -184,7 +183,7 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
     files_lst = os.listdir(grid_folder)
 
     # remove unwanted files from files_lst
-    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb']
+    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb', '.xml']
     for pattern in unwanted_pattern:
         for file in files_lst:
             if pattern in file:
@@ -244,7 +243,7 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
     files_lst = os.listdir(grid_folder)
 
     # remove unwanted files from files_lst
-    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb']
+    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb', '.xml']
     for pattern in unwanted_pattern:
         for file in files_lst:
             if pattern in file:
@@ -276,8 +275,7 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
         spy.save_rgb(filename=rgb_name, data=img, bands=rgb_band, stretch=(0.1, 0.99), stretch_all=True)
 
 
-def convert_xml_annotation_to_mask(path_data:str, xml_file:str):
-
+def convert_xml_annotation_to_mask(path_data: str, xml_file: str):
     path_xml_file = path_data + '/' + xml_file
     # read xml-file and convert to dictionary
     with open(path_xml_file) as fd:
@@ -301,11 +299,11 @@ def convert_xml_annotation_to_mask(path_data:str, xml_file:str):
                   "_" + str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
 
     # define annotated objects in dictionary
-    class_objects = {1:'Wiese', 2:'Straße', 3:'Auto', 4:'See', 5:'Schienen', 6:'Haus', 7:'Wald'}
+    class_objects = {1: 'Wiese', 2: 'Straße', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
 
     # build array with same shape as annotated picture
     # 0 = standard value for unannotated pixels
-    mask = np.zeros((windowsize_r,windowsize_c,1))
+    mask = np.zeros((windowsize_r, windowsize_c, 1))
 
     # do for every annotated objects in objects
     for class_key, class_value in class_objects.items():
@@ -335,13 +333,12 @@ def convert_xml_annotation_to_mask(path_data:str, xml_file:str):
             # use cv2.fillPoly to convert area in polygon to mask with obj_key as value in dat_holder_matrix
             mask = cv2.fillPoly(mask, [coords], class_key)
 
-
     plt.imshow(mask)
     plt.show()
 
     # read original_name
-    path_dat = original_name +'_.dat'
-    path_hdr = original_name +'_.hdr'
+    path_dat = original_name + '_.dat'
+    path_hdr = original_name + '_.hdr'
     img = envi.open(file=path_hdr, image=path_dat)
     img_arr = img.load()
 
@@ -360,10 +357,11 @@ def convert_xml_annotation_to_mask(path_data:str, xml_file:str):
     arr_metadata['bands'] = len(arr_metadata['wavelength'])
 
     # define export path
-    path_hdr_labeled = path_data + '/' + export_name + '_.hdr'
+    path_hdr_labeled = export_name + '_.hdr'
 
-    # envi.save_image(hdr_file=path_hdr_labeled, image=combined_arr, metadata=arr_metadata, dtype="float32", ext='.dat',
-    #                 interleave='bsq', force=True)
+    # save image with new band label
+    envi.save_image(hdr_file=path_hdr_labeled, image=combined_arr, metadata=arr_metadata, dtype="float32", ext='.dat',
+                    interleave='bsq', force=True)
 
     return img_arr, mask
 
@@ -382,7 +380,8 @@ if __name__ == '__main__':
     # combine HSI, THERMAL and DOM image
     combine_image_bands(path_data=path_folder,
                         hdr_file_hsi='Teilbild_Oldenburg_HSI.hdr', dat_file_hsi='Teilbild_Oldenburg_HSI.dat',
-                        hdr_file_thermal='Teilbild_Oldenburg_THERMAL.hdr', dat_file_thermal='Teilbild_Oldenburg_THERMAL.dat',
+                        hdr_file_thermal='Teilbild_Oldenburg_THERMAL.hdr',
+                        dat_file_thermal='Teilbild_Oldenburg_THERMAL.dat',
                         hdr_file_dom='Teilbild_Oldenburg_DOM.hdr', dat_file_dom='Teilbild_Oldenburg_DOM.dat',
                         export_title='Teilbild_Oldenburg')
 
@@ -397,6 +396,7 @@ if __name__ == '__main__':
     save_subimages_rgb(path_grid_subimages=path_grid_folder, rgb_band=(59, 26, 1))
 
     # export annotated polygon as mask
-    convert_xml_annotation_to_mask(path_data='../data/Oldenburg_grid_200_200', xml_file='Teilbild_Oldenburg_Annotation.xml')
+    convert_xml_annotation_to_mask(path_data='../data/Oldenburg_grid_200_200',
+                                   xml_file='Teilbild_Oldenburg_Annotation.xml')
 
     print('Fertig')
