@@ -1,53 +1,82 @@
 from spectral.algorithms.algorithms import TrainingClass, TrainingClassSet
-from code.find_path_nextcloud import find_path_nextcloud
-from spectral import *
-import numpy as np
+import matplotlib.pyplot as plt
+import spectral as spy
 
+# read image
+img = spy.open_image('../data/92AV3C.lan').load()
 
-# Pfad Nextcloud bestimmen
-path_nextcloud = find_path_nextcloud()
+##############################################################################################
 
-# Pfade definieren
-path_hdr = path_nextcloud + 'Daten_Gyrocopter/Oldenburg/Teilbilder/grid_1000_1000/Teilbild_Oldenburg_00000000_00000000_0_0_.hdr'
-path_dat = path_hdr[:-4] + '.dat'
+# example k-means Clustering
+(m, c) = spy.kmeans(img, 20, 30)
 
-# Teilbild laden
-img = envi.open(file=path_hdr, image=path_dat)
+# show spectrogram of cluster centers
+plt.figure()
 
-# Laden der Bildinformationen
-arr_img = img.load()
+for i in range(c.shape[0]):
+    plt.plot(c[i])
 
-# Neues "Band" für Klasse erzeugen
-new_array = np.zeros(shape=(1000,1000,1))
+plt.grid()
 
-# Werte ersetzen
-new_array[:50,:50,:] = 1
-new_array[50:100,50:100,:] = 2
+##############################################################################################
 
+# Classification
 
-# Trainingsdaten anlegen
+# import label mask
+gt = spy.open_image('../data/92AV3GT.GIS').read_band(0)
 
-# Set für alle Trainingsdaten anlegen
-train_set = TrainingClassSet()
-#training_data = create_training_classes(image=arr_img, class_mask=new_array) Unterschied noch herausfinden
+# plot label mask
+v = spy.imshow(classes=gt)
+plt.imshow(v.class_rgb)
+plt.show()
 
-# Trainingsdaten anlegen
-training_data = TrainingClass(image=arr_img, mask=new_array)
+# create trainclass
+classes = spy.create_training_classes(img, gt)
 
-# Berechnet Statistiken der Klassen
-# training_data.calc_stats()
-# print(training_data.stats.mean)
+# Gaussian Maximum Likelihood Classification
+gmlc = spy.GaussianClassifier(classes)
 
-# Anzahl annotierter Pixel bestimmen
-print(training_data.size())
+# plot results
+clmap = gmlc.classify_image(img)
+v = spy.imshow(classes=clmap)
+plt.imshow(v.class_rgb)
+plt.show()
 
-# Trainingsdaten dem Trainingsdaten-Set hinzufügen
-train_set.add_class(training_data)
+# compare labeled pixels with predicted labeling
+gtresults = clmap * (gt != 0)
+v = spy.imshow(classes=gtresults)
+plt.imshow(v.class_rgb)
+plt.show()
 
-# Ausgabe wie viele Trainingsbilder in Trainingsdaten-Set sind
-print(train_set.__len__())
+# compare results difference in labels
+gterrors = gtresults * (gtresults != gt)
+v = spy.imshow(classes=gterrors)
+plt.imshow(v.class_rgb)
+plt.show()
 
-# Erster Test
-clf = GaussianClassifier(training_data=train_set, min_samples=1)
-
-result = clf.classify_image(image=arr_img)
+# # Trainingsdaten anlegen
+#
+# # Set für alle Trainingsdaten anlegen
+# train_set = TrainingClassSet()
+# #training_data = create_training_classes(image=arr_img, class_mask=new_array) Unterschied noch herausfinden
+#
+# # Trainingsdaten anlegen
+# training_data = TrainingClass(image=arr_img, mask=new_array)
+#
+# # Berechnet Statistiken der Klassen
+# # training_data.calc_stats()
+# # print(training_data.stats.mean)
+#
+# # Anzahl annotierter Pixel bestimmen
+# print(training_data.size())
+#
+# # Trainingsdaten dem Trainingsdaten-Set hinzufügen
+# train_set.add_class(training_data)
+#
+# # Ausgabe wie viele Trainingsbilder in Trainingsdaten-Set sind
+# print(train_set.__len__())
+#
+# # Erster Test
+# clf = GaussianClassifier(training_data=train_set, min_samples=1)
+#
+# result = clf.classify_image(image=arr_img)

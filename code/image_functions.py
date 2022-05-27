@@ -33,6 +33,8 @@ def print_overview(hdr_file: str, dat_file: str):
     img = envi.open(file=hdr_file, image=dat_file)
     print(img)
 
+    return img
+
     # TODO finde useful output
 
 
@@ -183,7 +185,7 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
     files_lst = os.listdir(grid_folder)
 
     # remove unwanted files from files_lst
-    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb', '.xml']
+    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb', '.xml', 'labeled']
     for pattern in unwanted_pattern:
         for file in files_lst:
             if pattern in file:
@@ -243,7 +245,7 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
     files_lst = os.listdir(grid_folder)
 
     # remove unwanted files from files_lst
-    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb', '.xml']
+    unwanted_pattern = ['.hdr', 'combined_big_picture', 'rgb', '.xml', 'labeled']
     for pattern in unwanted_pattern:
         for file in files_lst:
             if pattern in file:
@@ -378,19 +380,23 @@ if __name__ == '__main__':
     print_overview(hdr_file=path_hdr, dat_file=path_dat)
 
     # combine HSI, THERMAL and DOM image
-    combine_image_bands(path_data=path_folder,
-                        hdr_file_hsi='Teilbild_Oldenburg_HSI.hdr', dat_file_hsi='Teilbild_Oldenburg_HSI.dat',
-                        hdr_file_thermal='Teilbild_Oldenburg_THERMAL.hdr',
-                        dat_file_thermal='Teilbild_Oldenburg_THERMAL.dat',
-                        hdr_file_dom='Teilbild_Oldenburg_DOM.hdr', dat_file_dom='Teilbild_Oldenburg_DOM.dat',
-                        export_title='Teilbild_Oldenburg')
+    path_combined_hdr = combine_image_bands(path_data=path_folder,
+                                            hdr_file_hsi='Teilbild_Oldenburg_HSI.hdr',
+                                            dat_file_hsi='Teilbild_Oldenburg_HSI.dat',
+                                            hdr_file_thermal='Teilbild_Oldenburg_THERMAL.hdr',
+                                            dat_file_thermal='Teilbild_Oldenburg_THERMAL.dat',
+                                            hdr_file_dom='Teilbild_Oldenburg_DOM.hdr',
+                                            dat_file_dom='Teilbild_Oldenburg_DOM.dat',
+                                            export_title='Teilbild_Oldenburg')
+
+    path_combined_dat = path_combined_hdr[:-4] + '.dat'
 
     # split image in subimages
-    path_grid_folder = split_image(hdr_file=path_hdr, dat_file=path_dat, window_width=200, window_height=200,
-                                   export_path='../data', export_title='Oldenburg', stop_after_row=1)
+    path_grid_folder = split_image(hdr_file=path_combined_hdr, dat_file=path_combined_dat, window_width=200,
+                                   window_height=200, export_path='../data', export_title='Oldenburg', stop_after_row=1)
 
     # combine subimages to big picture
-    big_picture = combine_subimages(hdr_file=path_hdr, dat_file=path_dat, path_grid_subimages=path_grid_folder)
+    big_picture = combine_subimages(hdr_file=path_combined_hdr, dat_file=path_combined_dat, path_grid_subimages=path_grid_folder)
 
     # save subimages as rgb
     save_subimages_rgb(path_grid_subimages=path_grid_folder, rgb_band=(59, 26, 1))
