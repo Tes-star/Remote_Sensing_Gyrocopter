@@ -48,5 +48,4 @@ def scale_data(data):
     data = scaler.transform(data)
     return data
 
-
 X, Y = import_labeled_data()
