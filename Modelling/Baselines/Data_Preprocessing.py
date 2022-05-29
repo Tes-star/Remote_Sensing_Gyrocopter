@@ -1,29 +1,16 @@
 # Import Modules
 import os
 from glob import glob
-
-import earthpy as et
-import earthpy.spatial as es
-import earthpy.plot as ep
-
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.colors import ListedColormap
 import spectral.io.envi as envi
-import plotly.graph_objects as go
-import rasterio as rio
-
-# from rasterio.plot import plotting_extent
-# from rasterio.plot import show
-# from rasterio.plot import reshape_as_raster, reshape_as_image
 from sklearn.preprocessing import StandardScaler
 from spectral import open_image
+#from Code.find_path_nextcloud import find_path_nextcloud
+from Code.find_path_nextcloud import find_path_nextcloud
 
-from Daten_einlesen.find_path_nextcloud import find_path_nextcloud
 
-
-def Import_Labeled_Data():
+def import_labeled_data():
     # Pfad Nextcloud bestimmen
+
     path_nextcloud = find_path_nextcloud()
 
     # Festlegung, welches Grid zusammengelegt werden soll
@@ -62,4 +49,4 @@ def scale_data(data):
     return data
 
 
-X, Y = Import_Labeled_Data()
+X, Y = import_labeled_data()
