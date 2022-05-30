@@ -37,9 +37,10 @@ def import_labeled_data():
         path_hdr = labeled_folder + os.path.splitext(filename)[0] + '.hdr'
         img = envi.open(file=path_hdr, image=path_dat)
         data = img.open_memmap(writable=False)
-        for row, column in zip(range(0, data.shape[0]), range(0, data.shape[1])):
-            X.append(data[row][column][0:109])
-            Y.append(data[row][column][117])
+        for row in range(0, data.shape[0]):
+            for column in range(0, data.shape[1]):
+                X.append(data[row][column][0:109])
+                Y.append(data[row][column][117])
     return X, Y
 
 
