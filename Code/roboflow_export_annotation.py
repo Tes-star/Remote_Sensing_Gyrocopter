@@ -5,6 +5,7 @@ import xmltodict as xmltodict
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
+
 from spectral.io import envi
 from find_path_nextcloud import find_path_nextcloud
 
@@ -47,7 +48,6 @@ for filename in files:
 
     with open(file) as fd:
         doc = xmltodict.parse(fd.read())
-
     objects = ['Wiese', 'Straße', 'Auto', 'See', 'Schienen', 'Haus', 'Wald']
     data_holder = np.ndarray(shape=[200, 200, len(objects) + 1])
     obj_nr = 0
