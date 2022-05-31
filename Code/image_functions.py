@@ -301,7 +301,7 @@ def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:s
                   "_" + str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
 
     # define annotated objects in dictionary
-    class_objects = {1: 'Wiese', 2: 'Straße', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
+    class_objects = {0:'None', 1: 'Wiese', 2: 'Straße', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
 
     # build array with same shape as annotated picture
     # 0 = standard value for unannotated pixels
