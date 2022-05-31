@@ -277,15 +277,15 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
         spy.save_rgb(filename=rgb_name, data=img, bands=rgb_band, stretch=(0.1, 0.99), stretch_all=True)
 
 
-def convert_xml_annotation_to_mask(path_data: str, xml_file: str):
-    path_xml_file = path_data + '/' + xml_file
+def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:str, windowsize_r, windowsize_c):
+
     # read xml-file and convert to dictionary
-    with open(path_xml_file) as fd:
+    with open(xml_file) as fd:
         doc = xmltodict.parse(fd.read())
 
     # extract image size
-    windowsize_r = int(doc['annotation']['size']['width'])
-    windowsize_c = int(doc['annotation']['size']['height'])
+    # windowsize_r = int(doc['annotation']['size']['width'])
+    # windowsize_c = int(doc['annotation']['size']['height'])
 
     # extract image name and calculate grid position
     filename = doc['annotation']['filename']
@@ -294,10 +294,10 @@ def convert_xml_annotation_to_mask(path_data: str, xml_file: str):
     grid_pos_c = int(file_split[3]) * windowsize_c  # Gridposition column
 
     # build original_name
-    original_name = path_data + "/" + file_split[0] + "_" + file_split[1] + "_" + str(file_split[2]).zfill(8) + "_" + \
+    original_name = path_picture + "/" + file_split[0] + "_" + file_split[1] + "_" + str(file_split[2]).zfill(8) + "_" + \
                     str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
     # define export name
-    export_name = path_data + "/" + file_split[0] + "_" + file_split[1] + "_labeled_" + str(file_split[2]).zfill(8) + \
+    export_name = path_export + "/" + file_split[0] + "_" + file_split[1] + "_labeled_" + str(file_split[2]).zfill(8) + \
                   "_" + str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
 
     # define annotated objects in dictionary
@@ -368,6 +368,27 @@ def convert_xml_annotation_to_mask(path_data: str, xml_file: str):
     return img_arr, mask
 
 
+def convert_all_annotations(path_annotations:str, path_pictures:str, path_export:str, windowsize_r, windowsize_c):
+
+    # build list with all files in path_data
+    files = os.listdir(path_annotations)
+
+    # remove all files which not end with '.xml'
+    for file in files:
+        if not file.endswith('.xml'):
+            files.remove(file)
+
+    # create folder for export envi files with added label band
+    path_labeled = path_export + '/labeled'
+    if not os.path.exists(path_labeled):
+        os.makedirs(path_labeled)
+
+    for file in files:
+        path_xml_file = path_annotations + '/' + file
+        convert_xml_annotation_to_mask(xml_file=path_xml_file, path_picture=path_pictures, path_export=path_labeled,
+                                       windowsize_r=windowsize_r, windowsize_c=windowsize_c)
+
+
 if __name__ == '__main__':
     # define path with data
     path_folder = '../data'
@@ -402,7 +423,17 @@ if __name__ == '__main__':
     save_subimages_rgb(path_grid_subimages=path_grid_folder, rgb_band=(59, 26, 1))
 
     # export annotated polygon as mask
-    convert_xml_annotation_to_mask(path_data='../data/Oldenburg_grid_200_200',
-                                   xml_file='Teilbild_Oldenburg_Annotation.xml')
+    convert_xml_annotation_to_mask(path_picture='../data/Oldenburg_grid_200_200',
+                                   xml_file='../data/Oldenburg_grid_200_200/Teilbild_Oldenburg_Annotation.xml',
+                                   path_export='../data/Oldenburg_grid_200_200/',
+                                   windowsize_r=200,
+                                   windowsize_c=200)
+
+    convert_all_annotations(
+        path_annotations='C:/Users/fgrassxx/Desktop/Oldenburg/Annotation_Oldenburg_grid_200_200/Export_roboflow',
+        path_pictures='C:/Users/fgrassxx/Desktop/Oldenburg/Oldenburg_grid_200_200',
+        path_export='C:/Users/fgrassxx/Desktop/Oldenburg/Oldenburg_grid_200_200',
+        windowsize_r=200,
+        windowsize_c=200)
 
     print('Fertig')
