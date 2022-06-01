@@ -284,8 +284,8 @@ def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:s
         doc = xmltodict.parse(fd.read())
 
     # extract image size
-    # windowsize_r = int(doc['annotation']['size']['width'])
-    # windowsize_c = int(doc['annotation']['size']['height'])
+    width = int(doc['annotation']['size']['width'])
+    height = int(doc['annotation']['size']['height'])
 
     # extract image name and calculate grid position
     filename = doc['annotation']['filename']
@@ -305,7 +305,7 @@ def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:s
 
     # build array with same shape as annotated picture
     # 0 = standard value for unannotated pixels
-    mask = np.zeros((windowsize_r, windowsize_c, 1))
+    mask = np.zeros((height, width, 1))
 
     # do for every annotated objects in objects
     for class_key, class_value in class_objects.items():
