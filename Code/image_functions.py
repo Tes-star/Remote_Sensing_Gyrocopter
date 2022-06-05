@@ -6,7 +6,6 @@ import spectral as spy
 from spectral import envi
 import xmltodict as xmltodict
 import matplotlib.pyplot as plt
-from find_path_nextcloud import find_path_nextcloud
 
 """
 Spectral Python (SPy) Functions
@@ -380,7 +379,7 @@ def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        path_hdr_labeled = path_export + '/wrong_size_images/' + original_name + '_.hdr'
+        path_hdr_labeled = path_export + '/wrong_image_size/' + original_name + '_.hdr'
 
     # save image with new band label
     envi.save_image(hdr_file=path_hdr_labeled, image=combined_arr, metadata=arr_metadata, dtype="float32", ext='.dat',
@@ -420,6 +419,10 @@ def import_labeled_data(path_labeled_folder:str):
         if not file.endswith('.dat'):
             files.remove(file)
 
+    for file in files:
+        if 'wrong_image_size' in file:
+            files.remove(file)
+
     # Spaltennamen des DataFrames bilden
     path_dat = path_labeled_folder + os.path.splitext(files[0])[0] + '.dat'
     path_hdr = path_labeled_folder + os.path.splitext(files[0])[0] + '.hdr'
@@ -449,8 +452,8 @@ def import_labeled_data(path_labeled_folder:str):
 
     # labeled Bilder erstellen
     for filename in files:
-        path_dat = path_labeled_folder + os.path.splitext(filename)[0] + '.dat'
-        path_hdr = path_labeled_folder + os.path.splitext(filename)[0] + '.hdr'
+        path_dat = path_labeled_folder + '/' + os.path.splitext(filename)[0] + '.dat'
+        path_hdr = path_labeled_folder + '/' + os.path.splitext(filename)[0] + '.hdr'
         img = spy.envi.open(file=path_hdr, image=path_dat)
 
         arr = img.load()
@@ -512,3 +515,8 @@ if __name__ == '__main__':
                                    windowsize_c=200)
 
     print('Fertig')
+
+# from find_path_nextcloud import find_path_nextcloud
+# path_nextcloud = find_path_nextcloud()
+# path_labeled = path_nextcloud + 'Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/labeled/'
+# df_annotations = import_labeled_data(path_labeled_folder=path_labeled)
