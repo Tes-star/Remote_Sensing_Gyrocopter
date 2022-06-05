@@ -6,7 +6,7 @@ import spectral as spy
 path_nextcloud = find_path_nextcloud()
 
 # define path with data
-path_folder = 'C:/Users/fgrassxx/Desktop/Oldenburg'
+path_folder = path_nextcloud + 'Daten_Gyrocopter/Oldenburg'
 
 # define HSI filenames
 path_combined_hdr = path_folder + '/Oldenburg_combined_HSI_THERMAL_DOM.hdr'
@@ -19,10 +19,17 @@ path_combined_dat = path_folder + '/Oldenburg_combined_HSI_THERMAL_DOM.dat'
 # save subimages as rgb
 # save_subimages_rgb(path_grid_subimages=path_grid_folder, rgb_band=(59, 26, 1))
 
-# # export annotated polygon as mask
-convert_all_annotations(path_annotations='C:/Users/fgrassxx/Desktop/Oldenburg/Oldenburg_grid_200_200/annotation_roboflow',
-                        path_pictures='C:/Users/fgrassxx/Desktop/Oldenburg/Oldenburg_grid_200_200',
-                        path_export='C:/Users/fgrassxx/Desktop/Oldenburg/Oldenburg_grid_200_200',
+# define paths
+path_grid_folder = path_nextcloud + 'Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200'
+path_roboflow_annotations = path_grid_folder + '/Export_roboflow'
+path_subimages = path_grid_folder + '/subimages'
+path_export_labeled = path_grid_folder + '/labeled'
+
+
+# export annotated polygon as mask
+convert_all_annotations(path_annotations=path_roboflow_annotations,
+                        path_pictures=path_subimages,
+                        path_export=path_export_labeled,
                         windowsize_c=200,
                         windowsize_r=200)
 

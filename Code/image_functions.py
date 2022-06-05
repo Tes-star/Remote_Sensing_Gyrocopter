@@ -1,10 +1,12 @@
 import os
 import cv2
 import numpy as np
+import pandas as pd
 import spectral as spy
 from spectral import envi
 import xmltodict as xmltodict
 import matplotlib.pyplot as plt
+from find_path_nextcloud import find_path_nextcloud
 
 """
 Spectral Python (SPy) Functions
@@ -117,9 +119,14 @@ def split_image(hdr_file: str, dat_file: str, window_width: int, window_height: 
     # define export folder name
     grid_folder = export_path + "/" + export_title + "_grid_" + str(windowsize_r) + "_" + str(windowsize_c)
 
-    # create grid_folger
+    # create global_folger
     if not os.path.exists(grid_folder):
         os.makedirs(grid_folder)
+
+    # build grid_folder
+    grid_subimages = grid_folder + "/subimages"
+    if not os.path.exists(grid_subimages):
+        os.makedirs(grid_subimages)
 
     # Split Image in Subimages
 
@@ -136,7 +143,7 @@ def split_image(hdr_file: str, dat_file: str, window_width: int, window_height: 
             print(str(r), '/', str(c))
 
             # define export hdf-filename
-            path_window = grid_folder + "/Teilbild_" + export_title + '_' + str(grid_r).zfill(8) + "_" + str(
+            path_window = grid_subimages + "/Teilbild_" + export_title + '_' + str(grid_r).zfill(8) + "_" + str(
                 grid_c).zfill(8) + "_" + str(r) + "_" + str(c) + "_.hdr"
 
             # save Subimage
@@ -156,12 +163,16 @@ def split_image(hdr_file: str, dat_file: str, window_width: int, window_height: 
         if grid_r == stop_after_row:
             break
 
-    return grid_folder
+    return grid_subimages
 
 
-def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
+def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str, path_export: str, window_width: int,
+                      window_height: int, ):
     """
     function which combine multiple Subimages to one big picture and save it
+    :param window_height:
+    :param window_width:
+    :param path_export:
     :param hdr_file: original big picture envi-header-file with ending .hdr
     :param dat_file: original big picture envi-image-file with ending .dat
     :param path_grid_subimages: path to grid folder with subimages
@@ -172,9 +183,8 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
     img = envi.open(file=hdr_file, image=dat_file)
 
     # extract grid_size
-    window_width, window_height = path_grid_subimages.split('/')[-1].split('_')[-2:]
-    windowsize_r = int(window_width)
-    windowsize_c = int(window_height)
+    windowsize_c = int(window_width)
+    windowsize_r = int(window_height)
 
     # define export folder name
     grid_folder = path_grid_subimages
@@ -191,8 +201,12 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
             if pattern in file:
                 files_lst.remove(file)
 
+    # build export folder
+    if not os.path.exists(path_export):
+        os.makedirs(path_export)
+
     # define big picture name
-    path_big_picture_hdr = grid_folder + '/grid_' + str(windowsize_r) + '_' + str(
+    path_big_picture_hdr = path_export + '/grid_' + str(windowsize_r) + '_' + str(
         windowsize_c) + '_combined_big_picture.hdr'
 
     # build empty envi file with matching dimension
@@ -230,14 +244,14 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str):
     return big_picture
 
 
-def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
+def save_subimages_rgb(path_subimages: str, rgb_bands: tuple, path_export_folder: str, window_width: int,
+                       window_height: int):
     # extract grid_size
-    window_width, window_height = path_grid_subimages.split('/')[-1].split('_')[-2:]
-    windowsize_r = int(window_width)
-    windowsize_c = int(window_height)
+    windowsize_c = int(window_width)
+    windowsize_r = int(window_height)
 
     # define grid_folder
-    grid_folder = path_grid_subimages
+    grid_folder = path_subimages
 
     # Select all .dat Subimages
 
@@ -251,10 +265,9 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
             if pattern in file:
                 files_lst.remove(file)
 
-    # build rgb folder
-    path_grid_rgb = grid_folder + '/rgb'
-    if not os.path.exists(path_grid_rgb):
-        os.makedirs(path_grid_rgb)
+    # build export folder
+    if not os.path.exists(path_export_folder):
+        os.makedirs(path_export_folder)
 
     # build rgb subimages
     for file in files_lst:
@@ -263,7 +276,7 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
         grid_pos_r = int(file_split[2]) * windowsize_r  # Gridposition row
         grid_pos_c = int(file_split[3]) * windowsize_c  # Gridposition column
         # Namenskonvention durchführen
-        rgb_name = path_grid_rgb + "/Teilbild_Oldenburg_" + str(file_split[2]).zfill(8) + "_" + str(
+        rgb_name = path_export_folder + "/Teilbild_Oldenburg_" + str(file_split[2]).zfill(8) + "_" + str(
             file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c) + "_.jpg"
 
         # Pfade definieren
@@ -274,11 +287,11 @@ def save_subimages_rgb(path_grid_subimages: str, rgb_band: tuple):
         img = envi.open(file=path_hdr, image=path_dat)
 
         # RGB für Teilbilder erstellen
-        spy.save_rgb(filename=rgb_name, data=img, bands=rgb_band, stretch=(0.1, 0.99), stretch_all=True)
+        spy.save_rgb(filename=rgb_name, data=img, bands=rgb_bands, stretch=(0.1, 0.99), stretch_all=True)
 
 
-def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:str, windowsize_r, windowsize_c):
-
+def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export: str, windowsize_r: int,
+                                   windowsize_c: int):
     # read xml-file and convert to dictionary
     with open(xml_file) as fd:
         doc = xmltodict.parse(fd.read())
@@ -294,14 +307,11 @@ def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:s
     grid_pos_c = int(file_split[3]) * windowsize_c  # Gridposition column
 
     # build original_name
-    original_name = path_picture + "/" + file_split[0] + "_" + file_split[1] + "_" + str(file_split[2]).zfill(8) + "_" + \
+    original_name = file_split[0] + "_" + file_split[1] + "_" + str(file_split[2]).zfill(8) + "_" + \
                     str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
-    # define export name
-    export_name = path_export + "/" + file_split[0] + "_" + file_split[1] + "_labeled_" + str(file_split[2]).zfill(8) + \
-                  "_" + str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
 
     # define annotated objects in dictionary
-    class_objects = {0:'None', 1: 'Wiese', 2: 'Straße', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
+    class_objects = {0: 'None', 1: 'Wiese', 2: 'Straße', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
 
     # build array with same shape as annotated picture
     # 0 = standard value for unannotated pixels
@@ -339,8 +349,8 @@ def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:s
     plt.show()
 
     # read original_name
-    path_dat = original_name + '_.dat'
-    path_hdr = original_name + '_.hdr'
+    path_dat = path_picture + "/" + original_name + '_.dat'
+    path_hdr = path_picture + "/" + original_name + '_.hdr'
     img = envi.open(file=path_hdr, image=path_dat)
     img_arr = img.load()
 
@@ -359,7 +369,18 @@ def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:s
     arr_metadata['bands'] = len(arr_metadata['wavelength'])
 
     # define export path
-    path_hdr_labeled = export_name + '_.hdr'
+    if np.logical_and(width == windowsize_c, height == windowsize_r):
+        # build export folder
+        if not os.path.exists(path_export):
+            os.makedirs(path_export)
+        path_hdr_labeled = path_export + '/' + original_name + '_.hdr'
+    else:
+        # build wrong_size_images folder
+        folder = path_export + '/wrong_size_images'
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        path_hdr_labeled = path_export + '/wrong_size_images/' + original_name + '_.hdr'
 
     # save image with new band label
     envi.save_image(hdr_file=path_hdr_labeled, image=combined_arr, metadata=arr_metadata, dtype="float32", ext='.dat',
@@ -368,8 +389,8 @@ def convert_xml_annotation_to_mask(xml_file:str, path_picture:str, path_export:s
     return img_arr, mask
 
 
-def convert_all_annotations(path_annotations:str, path_pictures:str, path_export:str, windowsize_r, windowsize_c):
-
+def convert_all_annotations(path_annotations: str, path_pictures: str, path_export: str, windowsize_r: int,
+                            windowsize_c: int):
     # build list with all files in path_data
     files = os.listdir(path_annotations)
 
@@ -379,7 +400,7 @@ def convert_all_annotations(path_annotations:str, path_pictures:str, path_export
             files.remove(file)
 
     # create folder for export envi files with added label band
-    path_labeled = path_export + '/labeled'
+    path_labeled = path_export
     if not os.path.exists(path_labeled):
         os.makedirs(path_labeled)
 
@@ -387,6 +408,61 @@ def convert_all_annotations(path_annotations:str, path_pictures:str, path_export
         path_xml_file = path_annotations + '/' + file
         convert_xml_annotation_to_mask(xml_file=path_xml_file, path_picture=path_pictures, path_export=path_labeled,
                                        windowsize_r=windowsize_r, windowsize_c=windowsize_c)
+
+
+def import_labeled_data(path_labeled_folder:str):
+
+    # Liste aller Dateien in annotation_folder erstellen
+    files = os.listdir(path_labeled_folder)
+
+    # Aus Liste files .hdr Dateien löschen
+    for file in files:
+        if not file.endswith('.dat'):
+            files.remove(file)
+
+    # Spaltennamen des DataFrames bilden
+    path_dat = path_labeled_folder + os.path.splitext(files[0])[0] + '.dat'
+    path_hdr = path_labeled_folder + os.path.splitext(files[0])[0] + '.hdr'
+
+    # load image
+    img = spy.envi.open(file=path_hdr, image=path_dat)
+
+    def isfloat(num):
+        try:
+            float(num)
+            return True
+        except ValueError:
+            return False
+
+    # convert only wavelength into dataframe and round numbers
+    value_bands = ['hsi_band_' + str(int(float(x))) + '_nm' for x in img.metadata['wavelength'] if isfloat(x)]
+    value_bands.extend(['thermal', 'dom'])
+
+    label_bands = ['label']
+
+    bands = []
+    bands.extend(value_bands)
+    bands.extend(label_bands)
+    bands.append('picture_name')
+
+    df_annotations = pd.DataFrame(columns=bands)
+
+    # labeled Bilder erstellen
+    for filename in files:
+        path_dat = path_labeled_folder + os.path.splitext(filename)[0] + '.dat'
+        path_hdr = path_labeled_folder + os.path.splitext(filename)[0] + '.hdr'
+        img = spy.envi.open(file=path_hdr, image=path_dat)
+
+        arr = img.load()
+
+        df = pd.DataFrame(arr.reshape(((arr.shape[0]*arr.shape[1]), arr.shape[2])), columns=bands[:-1])
+        df['picture_name'] = os.path.splitext(filename)[0]
+
+        df_annotations = pd.concat([df_annotations, df], ignore_index=True)
+
+        df_annotations['label'] = df_annotations['label'].astype(int)
+
+    return df_annotations
 
 
 if __name__ == '__main__':
@@ -413,27 +489,26 @@ if __name__ == '__main__':
     path_combined_dat = path_combined_hdr[:-4] + '.dat'
 
     # split image in subimages
-    path_grid_folder = split_image(hdr_file=path_combined_hdr, dat_file=path_combined_dat, window_width=200,
-                                   window_height=200, export_path='../data', export_title='Oldenburg', stop_after_row=1)
+    path_grid_subimages = split_image(hdr_file=path_combined_hdr, dat_file=path_combined_dat, window_width=200,
+                                      window_height=200, export_path='../data', export_title='Oldenburg',
+                                      stop_after_row=1)
 
     # combine subimages to big picture
-    big_picture = combine_subimages(hdr_file=path_combined_hdr, dat_file=path_combined_dat, path_grid_subimages=path_grid_folder)
+    big_picture = combine_subimages(hdr_file=path_combined_hdr, dat_file=path_combined_dat,
+                                    path_grid_subimages=path_grid_subimages,
+                                    path_export='../data/Oldenburg_grid_200_200/combined_subimages', window_width=200,
+                                    window_height=200)
 
     # save subimages as rgb
-    save_subimages_rgb(path_grid_subimages=path_grid_folder, rgb_band=(59, 26, 1))
+    save_subimages_rgb(path_subimages=path_grid_subimages, rgb_bands=(59, 26, 1),
+                       path_export_folder='../data/Oldenburg_grid_200_200/rgb_subimages', window_width=200,
+                       window_height=200)
 
     # export annotated polygon as mask
-    convert_xml_annotation_to_mask(path_picture='../data/Oldenburg_grid_200_200',
-                                   xml_file='../data/Oldenburg_grid_200_200/Teilbild_Oldenburg_Annotation.xml',
-                                   path_export='../data/Oldenburg_grid_200_200/',
+    convert_xml_annotation_to_mask(path_picture='../data/Oldenburg_grid_200_200/subimages',
+                                   xml_file='../data/Oldenburg_grid_200_200/Export_roboflow/Teilbild_Oldenburg_Annotation.xml',
+                                   path_export='../data/Oldenburg_grid_200_200/labeled',
                                    windowsize_r=200,
                                    windowsize_c=200)
-
-    convert_all_annotations(
-        path_annotations='C:/Users/fgrassxx/Desktop/Oldenburg/Annotation_Oldenburg_grid_200_200/Export_roboflow',
-        path_pictures='C:/Users/fgrassxx/Desktop/Oldenburg/Oldenburg_grid_200_200',
-        path_export='C:/Users/fgrassxx/Desktop/Oldenburg/Oldenburg_grid_200_200',
-        windowsize_r=200,
-        windowsize_c=200)
 
     print('Fertig')

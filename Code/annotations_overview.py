@@ -20,7 +20,7 @@ def isfloat(num):
 def read_data():
 
     # define path
-    path_hdr = '../data/Oldenburg_grid_200_200/Teilbild_Oldenburg_labeled_00000000_00000000_0_0_.hdr'
+    path_hdr = '../data/Oldenburg_grid_200_200/labeled/Teilbild_Oldenburg_00000000_00000000_0_0_.hdr'
     path_dat = path_hdr[:-4] + '.dat'
 
     # load image
