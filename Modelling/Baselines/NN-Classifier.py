@@ -6,9 +6,12 @@ from Code.find_path_nextcloud import find_path_nextcloud
 import wandb
 from sklearn.model_selection import train_test_split
 from wandb.keras import WandbCallback
-from tensorflow import keras
+import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 
 # login
 wandb.init(project="NN_for_pixels", entity="pds_project", name='Test_CPU')
@@ -40,11 +43,11 @@ y_test = tensorflow.convert_to_tensor(y_test, dtype=tensorflow.float32)
 
 # define the keras model
 model = Sequential()
-model.add(Dense(30, input_dim=109,  activation='relu'))
-model.add(Dense(15, input_dim=109,  activation='relu'))
+model.add(Dense(50, input_dim=109,  activation='relu'))
+model.add(Dense(25, input_dim=109,  activation='relu'))
 model.add(Dense(8, activation='sigmoid'))
 
 # compile the keras model
-model.compile(loss='mse', optimizer='sgd', metrics=['accuracy', keras.metrics.MeanSquaredError()])
+model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), metrics=['accuracy'])
 # model.fit(X_train, y_train, epochs=50)
 model.fit(X_train, y_train, epochs=500, validation_data=(X_test, y_test), callbacks=[WandbCallback()])
