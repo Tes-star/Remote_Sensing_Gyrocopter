@@ -43,6 +43,7 @@ def import_labeled_data():
                 Y.append(data[row][column][117])
     return X, Y
 
+
 def import_labeled_photos():
     # Pfad Nextcloud bestimmen
 
@@ -64,6 +65,9 @@ def import_labeled_photos():
     for file in files:
         if not file.endswith('.dat'):
             files.remove(file)
+    for file in files:
+        if file == 'wrong_image_size':
+            files.remove(file)
     X = []
     Y = []
     # labeled Bilder erstellen
@@ -72,18 +76,23 @@ def import_labeled_photos():
         path_hdr = labeled_folder + os.path.splitext(filename)[0] + '.hdr'
         img = envi.open(file=path_hdr, image=path_dat)
         data = img.open_memmap(writable=False)
-        dataholder=np.ndarray(shape=(200,200,118))
-        #for row in range(0, data.shape[0]):
+        # dataholder = np.ndarray(shape=(200, 200, 110))
+        dataholder = np.zeros((224, 224, 110))
+        # for row in range(0, data.shape[0]):
         #    for column in range(0, data.shape[1]):
-        dataholder[:][:][:]=data[:][:][:]
+        dataholder[0:200,0:200,:] = data[:][:][:]
 
-        X.append(dataholder[:,:,0:109])
-        Y.append(dataholder[:,:,117])
+        # X.append(dataholder[0:200, 0:200, 0:108])
+        # Y.append(dataholder[0:200, 0:200, 109])
+        X.append(dataholder[:, :, 0:108])
+        Y.append(dataholder[:, :, 109])
     return X, Y
+
 
 def scale_data(data):
     scaler = StandardScaler().fit(data)
     data = scaler.transform(data)
     return data
+
 
 X, Y = import_labeled_photos()
