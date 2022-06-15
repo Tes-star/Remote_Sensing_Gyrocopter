@@ -102,7 +102,8 @@ def import_labeled_photos():
                 dataholder[row, column, label_int] = 1
         # dataholder[np.where(dataholder == 0)] = -1
 
-        X.append(dataholder[:, :, 0:108])
+        #X.append(dataholder[:, :, 0:108])
+        X.append(dataholder[:, :, [59, 26, 1]])
         Y.append(dataholder[:, :, 110:118])
         # np.unique(dataholder[0:200,0:200,109], return_counts=True)
         # dict(zip(unique, counts))
