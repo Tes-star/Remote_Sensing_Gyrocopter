@@ -469,6 +469,7 @@ def import_labeled_data(path_labeled_folder:str):
 
 
 if __name__ == '__main__':
+    """
     # define path with data
     path_folder = '../data'
 
@@ -506,10 +507,10 @@ if __name__ == '__main__':
     save_subimages_rgb(path_subimages=path_grid_subimages, rgb_bands=(59, 26, 1),
                        path_export_folder='../data/Oldenburg_grid_200_200/rgb_subimages', window_width=200,
                        window_height=200)
-
+    """
     # export annotated polygon as mask
     convert_xml_annotation_to_mask(path_picture='../data/Oldenburg_grid_200_200/subimages',
-                                   xml_file='../data/Oldenburg_grid_200_200/Export_roboflow/Teilbild_Oldenburg_Annotation.xml',
+                                   xml_file='../data/Oldenburg_grid_200_200/Export_roboflow/Teilbild_Oldenburg_00000000_00000014_0_2800__jpg.rf.bb63fd4865a25700519dde8f03899ea7.xml',
                                    path_export='../data/Oldenburg_grid_200_200/labeled',
                                    windowsize_r=200,
                                    windowsize_c=200)
