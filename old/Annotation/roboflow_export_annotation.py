@@ -1,19 +1,18 @@
 import io
 import os
-
+import matplotlib.pyplot as plt
 import numpy as np
 import xmltodict as xmltodict
-import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
-
 from matplotlib.collections import PatchCollection
-# print(matplotlib.get_backend())
-# matplotlib.use('Agg')
-
+from matplotlib.patches import Polygon
 # Import Packages
 from spectral.io import envi
-#from spectral import *
+
+# from spectral import *
 from Code.find_path_nextcloud import find_path_nextcloud
+
+# print(matplotlib.get_backend())
+# matplotlib.use('Agg')
 
 # Pfad Nextcloud bestimmen
 path_nextcloud = find_path_nextcloud()

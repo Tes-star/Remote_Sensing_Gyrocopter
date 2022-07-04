@@ -114,4 +114,9 @@ def import_labeled_photos(bands=slice(0, 108)):
 
 
 if __name__ == '__main__':
-    X, Y = import_labeled_photos()
+    bands = list(range(0, 104, 14))
+    bands.append(105)
+    bands.append(106)
+    bands.append(107)
+    bands.append(108)
+    x, y = import_labeled_photos(bands=bands)

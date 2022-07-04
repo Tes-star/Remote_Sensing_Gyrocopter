@@ -1,4 +1,4 @@
-numpy~=1.22.4
+numpy~=1.23.0
 spectral~=0.22.4
 matplotlib~=3.5.2
 pandas~=1.4.2
@@ -8,4 +8,4 @@ opencv-python~=4.5.5.64
 scikit-learn~=1.1.1
 tensorflow~=2.9.1
 keras~=2.9.0
-wandb~=0.12.17
+wandb~=0.12.20
