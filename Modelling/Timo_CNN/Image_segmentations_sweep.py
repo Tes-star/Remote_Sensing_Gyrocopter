@@ -13,7 +13,7 @@ from Modelling.Data_Preprocessing import import_labeled_photos
 
 # Configs
 batch_size = 17
-epochs = 1
+epochs = 300
 metrics = ['categorical_accuracy']
 label_mapping = 'Ohne_Auto_See'  # Alternative:'Grünflächen'
 
