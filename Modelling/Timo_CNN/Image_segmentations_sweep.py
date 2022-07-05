@@ -6,29 +6,43 @@ import wandb
 from numpy import float16
 from segmentation_models import Unet
 from wandb.integration.keras import WandbCallback
-import os
 from Modelling.Data_Preprocessing import import_labeled_photos
 
+# Configs
+batch_size = 17
+epochs = 300
+metrics = ['categorical_accuracy']
+label_mapping = 'Ohne_Auto_See'  # Alternative:'Grünflächen'
+
+match label_mapping:
+    case 'Ohne_Auto_See':
+        #labels = {0: 'None', 1: 'Wiese', 2: 'Straße', 3: 'Schienen', 4: 'Haus', 5: 'Wald'}
+        labels = ['None', 'Wiese', 'Straße', 'Schienen', 'Haus','Wald']
+    case 'Grünflächen':
+        #labels = {0: 'None', 1: 'Grünflächen', 2: 'Straße', 3: 'Schienen', 4: 'Haus'}
+        labels=['None', 'Grünflächen',  'Straße', 'Schienen',  'Haus']
+    case _: #else
+        labels = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+""" wird aktuell nicht mehr benötigt. Bitte stehen lassen
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-epochs = 200
-metrics = ['categorical_accuracy']
-
-
 # physical_devices = tf.config.list_physical_devices('GPU')
 # tf.config.experimental.set_memory_growth(physical_devices[0], True)
 # gpus = tf.config.list_physical_devices('GPU')
 # tf.config.set_visible_devices(gpus[0], 'GPU')
-
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+"""
 
 
 def cnn_sweep():
-    wandb.init(reinit=True)
+    wandb.init()
     # Access all hyperparameter values through wandb.config
     config = wandb.config
+    # set configs
+    optim = tf.keras.optimizers.Adam(config.learning_rate)
 
-    loss = JaccardLoss()
+    loss = JaccardLoss()  # to avoid errors
     match config.loss:
         case 'JaccardLoss':
             loss = JaccardLoss()
@@ -37,9 +51,7 @@ def cnn_sweep():
         case 'CategoricalCrossentropy':
             loss = CategoricalCrossentropy()
 
-    # backbone_list = ['efficientnetb0', 'efficientnetb1', 'efficientnetb2', 'resnet18', 'resnet34']
-    # backbone_name = backbone_list[backbone_id]
-    """
+    """wird aktuell nicht mehr benötigt. Bitte stehen lassen
     import wandb
     # login
     run = wandb.init(project="cnn_segmentation_models", entity="pds_project", name='segmentation_models_Unet',
@@ -51,15 +63,28 @@ def cnn_sweep():
                        'encoder_freeze': encoder_freeze,
                        'augmentation': augmentation
                        })
-    """
-    optim = tf.keras.optimizers.Adam(config.learning_rate)
-    # import Data
-
-    """
     run.config.update({'images_train': len(x_train_data),
                        'images_test': len(x_test_data),
                        })
     """
+    #wandb.log({"label_mapping": str(label_mapping)})
+
+    # Choose bands
+    bands = list(range(0, 104, config.band_dist))
+    bands.append(105)
+    bands.append(106)
+    bands.append(107)
+    bands.append(108)
+
+    # import Data
+    x, y = import_labeled_photos(bands=bands, label_mapping=label_mapping)
+
+    x_train = x[6:]
+    y_train = y[6:]
+    x_test = x[0:6]
+    y_test = y[0:6]
+    del x, y
+
     # add augmentations
     import albumentations as A
 
@@ -96,21 +121,6 @@ def cnn_sweep():
     ])
 
     aug_list = [transform_light, transform_middle, transform_hard]
-    """
-wandb.config.update({'augmentations': len(aug_list)
-                     })
-"""
-    bands = list(range(0, 104, 14))
-    bands.append(105)
-    bands.append(106)
-    bands.append(107)
-    bands.append(108)
-    x, y = import_labeled_photos(bands=bands)
-    x_train = x[6:]
-    y_train = y[6:]
-    x_test = x[0:6]
-    y_test = y[0:6]
-    del x, y
 
     pict_with_labels = zip(x_train.copy(), y_train.copy())
     for image, mask in pict_with_labels:
@@ -131,7 +141,7 @@ wandb.config.update({'augmentations': len(aug_list)
     # define model
     model = Unet(backbone_name=config.backbone, encoder_freeze=config.encoder_freeze, encoder_weights=None,
                  input_shape=(None, None, N), activation=config.activation,
-                 classes=8)
+                 classes=len(labels))
 
     # model.summary()
     model.compile(optim, loss=loss, metrics=metrics)
@@ -140,7 +150,7 @@ wandb.config.update({'augmentations': len(aug_list)
     model.fit(
         x=x_train,
         y=y_train,
-        batch_size=15,  # config.batch_size,
+        batch_size=batch_size,  # config.batch_size,
         epochs=epochs,
         validation_data=(x_test, y_test),
         callbacks=[WandbCallback()]
@@ -156,7 +166,8 @@ wandb.config.update({'augmentations': len(aug_list)
     pred_y_test = tf.reshape(tf.math.argmax(pred_y_test, axis=3), [-1]).numpy()
 
     # confusion matrix
-    labels = [0, 1, 2, 3, 4, 5, 6, 7]
+    # labels = [0, 1, 2, 3, 4, 5, 6, 7]
+
     wandb.log(
         {"conf_mat": wandb.plot.confusion_matrix(probs=None, y_true=y_test, preds=pred_y_test, class_names=labels)})
 
@@ -183,10 +194,13 @@ wandb.config.update({'augmentations': len(aug_list)
 
 
 if __name__ == '__main__':
+    """
+    Better use Sweep_upload_data.ipynb to avoid errors and bad visualisation
+    """
+
     # define sweep_id
     sweep_id = 'kxktgmx5'
-
     # wandb sweep sweep.yaml
-    # run the sweep
 
+    # run the sweep
     wandb.agent(sweep_id, function=cnn_sweep, project="cnn_segmentation_models", entity="pds_project")

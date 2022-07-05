@@ -44,7 +44,22 @@ def import_labeled_data():
     return X, Y
 
 
-def import_labeled_photos(bands=slice(0, 108)):
+def import_labeled_photos(bands=slice(0, 109), label_mapping=None):
+    # Standart Label Mapping
+    # labels = {0: 'None', 1: 'Wiese', 2: 'Straße', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
+    match label_mapping:
+        case None:
+            label_mapping = [0, 1, 2, 3, 4, 5, 6, 7]
+        case 'Ohne_Auto_See':
+            label_mapping = [0, 1, 2, 0, 0, 3, 4, 5]
+            # Auto=0
+            # See=0
+        case 'Grünflächen':
+            label_mapping = [0, 1, 2, 0, 0, 3, 4, 1]
+            # Auto=0
+            # See=0
+            # Wald=Wiese
+
     # Pfad Nextcloud bestimmen
 
     path_nextcloud = find_path_nextcloud()
@@ -77,8 +92,8 @@ def import_labeled_photos(bands=slice(0, 108)):
     path_hdr = Oldenburg_folder + 'Oldenburg_combined_HSI_THERMAL_DOM.hdr'
     img = envi.open(file=path_hdr, image=path_dat)
     data = img.open_memmap(writable=False)
-    max_value = np.zeros(108)
-    for i in range(108):
+    max_value = np.zeros(109)
+    for i in range(109):
         max_value[i] = data[:, :, i].max()
 
     for filename in files:
@@ -93,21 +108,26 @@ def import_labeled_photos(bands=slice(0, 108)):
         dataholder[0:200, 0:200, 0:110] = data[:, :, 0:110]
 
         # reduce values between 0 and 1
-        for i in range(108):
+        for i in range(109):
             dataholder[0:200, 0:200, i] = dataholder[0:200, 0:200, i] / max_value[i]
 
+        # one hot encode dataholder with classes
         for row in range(0, 200):
             for column in range(0, 200):
-                label_int = int(dataholder[row, column, 109]) + 110
-                dataholder[row, column, label_int] = 1
+                label_id = int(dataholder[row, column, 109])
+                # map label_id to label_mapping if annotation labels are not used labels
+                label_id = label_mapping[label_id]
+
+                dataholder[row, column, label_id+ 110] = 1
+
         # dataholder[np.where(dataholder == 0)] = -1
 
-        if bands == None:
-            bands = "0:108"
+        # if bands is None:
+        #   bands = "0:109"
 
         # X.append(dataholder[:, :, 0:108])
         X.append(dataholder[:, :, bands])
-        Y.append(dataholder[:, :, 110:118])
+        Y.append(dataholder[:, :, 110:111+max(label_mapping)])
         # np.unique(dataholder[0:200,0:200,109], return_counts=True)
         # dict(zip(unique, counts))
     return X, Y
@@ -119,4 +139,7 @@ if __name__ == '__main__':
     bands.append(106)
     bands.append(107)
     bands.append(108)
-    x, y = import_labeled_photos(bands=bands)
+    x, y = import_labeled_photos(bands=bands, label_mapping='Ohne_Auto_See')
+    del x
+
+
