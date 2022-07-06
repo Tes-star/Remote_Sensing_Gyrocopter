@@ -25,7 +25,7 @@ def read_img():
     path_nextcloud = find_path_nextcloud()
 
     # define path
-    path_hdr = path_nextcloud + 'Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/Teilbild_Oldenburg_00000000_00000000_0_0_.hdr'
+    path_hdr = path_nextcloud + 'Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/subimages/Teilbild_Oldenburg_00000000_00000000_0_0_.hdr'
     path_dat = path_hdr[:-4] + '.dat'
 
     # load image
