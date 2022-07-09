@@ -1,53 +1,37 @@
-import numpy as np
-import pandas as pd
-import tensorflow
-from Code.image_functions import *
-from Code.find_path_nextcloud import find_path_nextcloud
 import wandb
-from sklearn.model_selection import train_test_split
+from build_samples import import_samples_for_baseline
 from wandb.keras import WandbCallback
 import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import Dense
+from keras.models import Model
+from keras.layers import Dense, Input, Dropout
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 # login
-wandb.init(project="NN_for_pixels", entity="pds_project", name='Test_CPU')
+wandb.init(project="NN_for_pixels", entity="pds_project", name='GPU')
 
 # import data
-path_nextcloud = find_path_nextcloud()
-path_labeled_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/labeled/"
-df_annotations = import_labeled_data(path_labeled_folder=path_labeled_folder)
+X_train, y_train, X_test, y_test = import_samples_for_baseline(label_mapping='Ohne_Auto_See')
 
-# cut df_annotations in x and y
-X = df_annotations.drop(columns=['label', 'picture_name'])
-label = np.array(df_annotations['label'])
-
-# build for each class one column (0 and 1)
-y = pd.DataFrame()
-dic = {0:'None',1:'Wiese', 2:'Straße',3: 'Auto', 4:'See', 5:'Schienen', 6:'Haus', 7:'Wald'}
-for key, value in dic.items():
-    y[value] = np.where(label == key, 1, 0)
-y = np.array(y)
-
-
-# split in train and test
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-
-X_train = tensorflow.convert_to_tensor(X_train, dtype=tensorflow.float32)
-y_train = tensorflow.convert_to_tensor(y_train, dtype=tensorflow.float32)
-X_test = tensorflow.convert_to_tensor(X_test, dtype=tensorflow.float32)
-y_test = tensorflow.convert_to_tensor(y_test, dtype=tensorflow.float32)
+dropout_rate = 0.05
 
 # define the keras model
-model = Sequential()
-model.add(Dense(50, input_dim=109,  activation='relu'))
-model.add(Dense(25, input_dim=109,  activation='relu'))
-model.add(Dense(8, activation='sigmoid'))
+input_x = Input(X_train.shape[1], name='input_layer')
+hl1 = Dense(512, activation='relu')(input_x)
+drop1 = Dropout(rate=dropout_rate)(hl1)
+hl2 = Dense(256, activation='relu')(drop1)
+drop2 = Dropout(rate=dropout_rate)(hl2)
+hl3 = Dense(128, activation='relu')(drop2)
+drop3 = Dropout(rate=dropout_rate)(hl3)
+hl4 = Dense(64, activation='relu')(drop3)
+drop4 = Dropout(rate=dropout_rate)(hl3)
+hl5 = Dense(32, activation='relu')(drop4)
+output = Dense(y_train.shape[1], activation='softmax')(hl5)
+
+model = Model(inputs=input_x, outputs=output, name='model_nn_for_pixel')
 
 # compile the keras model
-model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), metrics=['accuracy'])
-# model.fit(X_train, y_train, epochs=50)
-model.fit(X_train, y_train, epochs=500, validation_data=(X_test, y_test), callbacks=[WandbCallback()])
+model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3), metrics=['accuracy'])
+print(model.summary())
+model.fit(X_train, y_train, epochs=10000, batch_size=10000, validation_data=(X_test, y_test), callbacks=[WandbCallback()])

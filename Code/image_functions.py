@@ -310,7 +310,7 @@ def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export
                     str(file_split[3]).zfill(8) + "_" + str(grid_pos_r) + "_" + str(grid_pos_c)
 
     # define annotated objects in dictionary
-    class_objects = {0: 'None', 1: 'Wiese', 2: 'Straße', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
+    class_objects = {0: 'None', 1: 'Wiese', 2: 'Strase', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
 
     # build array with same shape as annotated picture
     # 0 = standard value for unannotated pixels
@@ -375,7 +375,7 @@ def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export
         path_hdr_labeled = path_export + '/' + original_name + '_.hdr'
     else:
         # build wrong_size_images folder
-        folder = path_export + '/wrong_size_images'
+        folder = path_export + '/wrong_image_size'
         if not os.path.exists(folder):
             os.makedirs(folder)
 
