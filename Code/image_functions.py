@@ -209,6 +209,7 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str, pa
         windowsize_c) + '_combined_big_picture.hdr'
 
     # build empty envi file with matching dimension
+    #img.metadata['bands'] = 110
     grid = envi.create_image(hdr_file=path_big_picture_hdr, metadata=img.metadata, dtype="float32", ext='.dat',
                              interleave='bsq',
                              force=True)
@@ -232,9 +233,13 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str, pa
         # read subimage
         image_small = envi.open(file=path_hdr, image=path_dat)
 
+        image_small_arr = image_small.load()
+        # if image_small_arr.shape[2] == 109:
+        #     zero_mask = np.ones((image_small_arr.shape[0], image_small_arr.shape[1], 1)) * -1
+        #     image_small_arr = np.concatenate((image_small_arr, zero_mask), -1)
+
         # insert subimage in grid
-        writer[grid_pos_r:grid_pos_r + windowsize_r, grid_pos_c:grid_pos_c + windowsize_c, :] = image_small.open_memmap(
-            writable=False)
+        writer[grid_pos_r:grid_pos_r + windowsize_r, grid_pos_c:grid_pos_c + windowsize_c, :] = image_small_arr
 
     # read big picture
     path_big_picture_dat = path_big_picture_hdr[:-4] + '.dat'
@@ -344,8 +349,10 @@ def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export
             # use cv2.fillPoly to convert area in polygon to mask with obj_key as value in dat_holder_matrix
             mask = cv2.fillPoly(mask, [coords], class_key)
 
-    plt.imshow(mask)
-    plt.show()
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.imshow(mask)
+    fig.show()
+    fig.savefig(original_name)
 
     # read original_name
     path_dat = path_picture + "/" + original_name + '_.dat'

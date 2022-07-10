@@ -9,7 +9,6 @@ from sklearn.model_selection import StratifiedKFold
 
 def import_samples_for_baseline(label_mapping=None):
     # import data
-    global y_train, y_test, X_train, X_test
     path_nextcloud = find_path_nextcloud()
     path_labeled_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/labeled/"
     df_annotations = import_labeled_data(path_labeled_folder=path_labeled_folder)
