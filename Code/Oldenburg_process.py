@@ -8,6 +8,13 @@ path_nextcloud = find_path_nextcloud()
 # define path with data
 path_folder = path_nextcloud + 'Daten_Gyrocopter/Oldenburg'
 
+# combine HSI, THERMAL and DOM image
+# path_out = combine_image_bands(path_data=path_folder,
+#                                hdr_file_hsi='Oldenburg_HSI.hdr', dat_file_hsi='Oldenburg_HSI.dat',
+#                                hdr_file_thermal='Oldenburg_THERMAL.hdr', dat_file_thermal='Oldenburg_THERMAL.dat',
+#                                hdr_file_dom='Oldenburg_DOM.hdr', dat_file_dom='Oldenburg_DOM.dat',
+#                                export_title='Oldenburg')
+
 # define HSI filenames
 path_combined_hdr = path_folder + '/Oldenburg_combined_HSI_THERMAL_DOM.hdr'
 path_combined_dat = path_folder + '/Oldenburg_combined_HSI_THERMAL_DOM.dat'

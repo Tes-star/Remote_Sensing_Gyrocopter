@@ -65,7 +65,7 @@ def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export
     fig, ax = plt.subplots(figsize=(8, 8))
     ax.imshow(mask)
     fig.show()
-    fig.savefig(original_name)
+    # fig.savefig(original_name)
 
     # read original_name
     path_dat = path_picture + "/" + original_name + '_.dat'
