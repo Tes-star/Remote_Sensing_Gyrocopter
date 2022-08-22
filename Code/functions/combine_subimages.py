@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str, path_export: str, window_width: int,
-                      window_height: int, ):
+                      window_height: int, combine_annotated_images: bool = False):
     """
     function which combine multiple Subimages to one big picture and save it
     :param window_height:
@@ -51,8 +51,11 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str, pa
     path_big_picture_hdr = path_export + '/grid_' + str(windowsize_r) + '_' + str(
         windowsize_c) + '_combined_big_picture.hdr'
 
+    # use if combine_annotated_images == True to combine annotated and not annotated pictures to one big picture
+    if combine_annotated_images:
+        img.metadata['bands'] = 110
+
     # build empty envi file with matching dimension
-    #img.metadata['bands'] = 110
     grid = envi.create_image(hdr_file=path_big_picture_hdr, metadata=img.metadata, dtype="float32", ext='.dat',
                              interleave='bsq',
                              force=True)
@@ -77,9 +80,12 @@ def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str, pa
         image_small = envi.open(file=path_hdr, image=path_dat)
 
         image_small_arr = image_small.load()
-        # if image_small_arr.shape[2] == 109:
-        #     zero_mask = np.ones((image_small_arr.shape[0], image_small_arr.shape[1], 1)) * -1
-        #     image_small_arr = np.concatenate((image_small_arr, zero_mask), -1)
+
+        # use if combine_annotated_images == True to combine annotated and not annotated pictures to one big picture
+        if combine_annotated_images:
+            if image_small_arr.shape[2] == 109:
+                zero_mask = np.ones((image_small_arr.shape[0], image_small_arr.shape[1], 1)) * -1
+                image_small_arr = np.concatenate((image_small_arr, zero_mask), -1)
 
         # insert subimage in grid
         writer[grid_pos_r:grid_pos_r + windowsize_r, grid_pos_c:grid_pos_c + windowsize_c, :] = image_small_arr
