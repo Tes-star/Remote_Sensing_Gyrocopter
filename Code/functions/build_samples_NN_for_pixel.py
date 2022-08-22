@@ -3,8 +3,10 @@ import pandas as pd
 import tensorflow
 from Code.image_functions import *
 from Code.find_path_nextcloud import find_path_nextcloud
+from Code.functions.class_ids import new_label_mapping
 from Modelling.Data_Preprocessing import import_labeled_photos
 from sklearn.model_selection import StratifiedKFold
+from keras.utils.np_utils import to_categorical
 
 
 def import_samples_for_baseline(label_mapping=None):
@@ -13,22 +15,10 @@ def import_samples_for_baseline(label_mapping=None):
     path_labeled_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/labeled/"
     df_annotations = import_labeled_data(path_labeled_folder=path_labeled_folder)
 
-    match label_mapping:
-        case None:
-            label_mapping = [0, 1, 2, 3, 4, 5, 6, 7]
-        case 'Ohne_Auto_See':
-            label_mapping = [0, 1, 2, 0, 0, 3, 4, 5]
-            # Auto=0
-            # See=0
-        case 'Grünflächen':
-            label_mapping = [0, 1, 2, 0, 0, 3, 4, 1]
-            # Auto=0
-            # See=0
-            # Wald=Wiese
-
-    df_annotations['label'] = df_annotations['label'].replace([0, 1, 2, 3, 4, 5, 6, 7], label_mapping)
+    new_label_mapping(datafrane=df_annotations, map_column='label', label_mapping=label_mapping)
 
     for train_index, test_index in StratifiedKFold(random_state=0, shuffle=True, n_splits=5).split(df_annotations, df_annotations['label']):
+
         # cut df_annotations in x and y
         train = df_annotations.iloc[train_index]
         X_train = train.drop(columns=['label', 'picture_name'])
@@ -38,16 +28,10 @@ def import_samples_for_baseline(label_mapping=None):
         X_test = test.drop(columns=['label', 'picture_name'])
         y_test = test['label']
 
-    # build for each class one column (0 and 1)
-    y = pd.DataFrame()
-    for value in df_annotations['label'].drop_duplicates():
-        y['id_' + str(value)] = np.where(y_train == value, 1, 0)
-    y_train = np.array(y)
+        break
 
-    y = pd.DataFrame()
-    for value in df_annotations['label'].unique():
-        y['id_' + str(value)] = np.where(y_test == value, 1, 0)
-    y_test = np.array(y)
+    y_train = to_categorical(y_train, num_classes=8)
+    y_test = to_categorical(y_test, num_classes=8)
 
     # convert to tensor
     X_train = tensorflow.convert_to_tensor(X_train, dtype=tensorflow.float32)
