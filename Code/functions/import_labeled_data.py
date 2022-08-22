@@ -9,7 +9,7 @@ def isfloat(num):
     except ValueError:
         return False
 
-def import_labeled_data(path_labeled_folder:str):
+def import_labeled_data(path_labeled_folder:str, import_labeled_images:bool = True):
 
     # Liste aller Dateien in annotation_folder erstellen
     files = os.listdir(path_labeled_folder)
@@ -43,11 +43,13 @@ def import_labeled_data(path_labeled_folder:str):
     value_bands = ['hsi_band_' + str(int(float(x))) + '_nm' for x in img.metadata['wavelength'] if isfloat(x)]
     value_bands.extend(['thermal', 'dom'])
 
-    label_bands = ['label']
 
     bands = []
     bands.extend(value_bands)
-    bands.extend(label_bands)
+
+    if import_labeled_images:
+        bands.extend(['label'])
+
     bands.append('picture_name')
 
     df_annotations = pd.DataFrame(columns=bands)
@@ -65,6 +67,7 @@ def import_labeled_data(path_labeled_folder:str):
 
         df_annotations = pd.concat([df_annotations, df], ignore_index=True)
 
-        df_annotations['label'] = df_annotations['label'].astype(int)
+        if import_labeled_images:
+            df_annotations['label'] = df_annotations['label'].astype(int)
 
     return df_annotations

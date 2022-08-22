@@ -13,7 +13,7 @@ def import_samples_NN_for_pixel(label_mapping=None):
     path_labeled_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/labeled/"
     df_annotations = import_labeled_data(path_labeled_folder=path_labeled_folder)
 
-    new_label_mapping(datafrane=df_annotations, map_column='label', label_mapping=label_mapping)
+    df_annotations = new_label_mapping(datafrane=df_annotations, map_column='label', label_mapping=label_mapping)
 
     for train_index, test_index in StratifiedKFold(random_state=0, shuffle=True, n_splits=5).split(df_annotations, df_annotations['label']):
 
