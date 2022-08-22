@@ -1,12 +1,10 @@
-import numpy as np
-import pandas as pd
-import tensorflow
-from Code.image_functions import *
+from Code.functions.import_labeled_data import import_labeled_data
 from Code.find_path_nextcloud import find_path_nextcloud
 from Code.functions.class_ids import new_label_mapping
-from Modelling.Data_Preprocessing import import_labeled_photos
 from sklearn.model_selection import StratifiedKFold
 from keras.utils.np_utils import to_categorical
+import tensorflow
+
 
 
 def import_samples_NN_for_pixel(label_mapping=None):

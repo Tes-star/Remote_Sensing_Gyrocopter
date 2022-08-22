@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 import spectral as spy
-from Code.find_path_nextcloud import find_path_nextcloud
 
 def isfloat(num):
     try:

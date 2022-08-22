@@ -1,5 +1,5 @@
 import wandb
-from build_samples import import_samples_for_baseline
+from Code.functions.build_samples_NN_for_pixel import import_samples_NN_for_pixel
 from wandb.keras import WandbCallback
 import tensorflow as tf
 from keras.models import Model
@@ -12,7 +12,7 @@ from keras.layers import Dense, Input, Dropout
 wandb.init(project="NN_for_pixels", entity="pds_project", name='GPU')
 
 # import data
-X_train, y_train, X_test, y_test = import_samples_for_baseline(label_mapping='Ohne_Auto_See')
+X_train, y_train, X_test, y_test = import_samples_NN_for_pixel(label_mapping='Ohne_Auto_See')
 
 dropout_rate = 0.05
 
@@ -34,4 +34,4 @@ model = Model(inputs=input_x, outputs=output, name='model_nn_for_pixel')
 # compile the keras model
 model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3), metrics=['accuracy'])
 print(model.summary())
-model.fit(X_train, y_train, epochs=10000, batch_size=10000, validation_data=(X_test, y_test), callbacks=[WandbCallback()])
+model.fit(X_train, y_train, epochs=10, batch_size=10000, validation_data=(X_test, y_test), callbacks=[WandbCallback()])
