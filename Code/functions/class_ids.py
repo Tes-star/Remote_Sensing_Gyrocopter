@@ -8,7 +8,7 @@ def map_float_id2rgb(dataframe, column):
          0.0: [51, 51, 51],  # grauschwarz -> nicht annotierter Pixel im annotierten Bild
          1.0: [188, 238, 104],  # hellgrün -> Wiese
          2.0: [140, 140, 140],  # grau -> Straße
-         3.0: [255, 255, 255],  # Weiss -> Auto
+         3.0: [255, 215, 0],  # gelb -> Auto
          4.0: [0, 191, 255],  # blau -> See
          5.0: [255, 20, 147],  # pink -> Schienen
          6.0: [205, 38, 38],  # rot -> Haus

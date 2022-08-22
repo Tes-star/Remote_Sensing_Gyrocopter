@@ -9,7 +9,7 @@ from sklearn.model_selection import StratifiedKFold
 from keras.utils.np_utils import to_categorical
 
 
-def import_samples_for_baseline(label_mapping=None):
+def import_samples_NN_for_pixel(label_mapping=None):
     # import data
     path_nextcloud = find_path_nextcloud()
     path_labeled_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/labeled/"
@@ -42,5 +42,5 @@ def import_samples_for_baseline(label_mapping=None):
     return X_train, y_train, X_test, y_test
 
 if __name__ == '__main__':
-    X_train, y_train, X_test, y_test = import_samples_for_baseline(label_mapping='Ohne_Auto_See')
+    X_train, y_train, X_test, y_test = import_samples_NN_for_pixel(label_mapping='Ohne_Auto_See')
     print('Fertig')

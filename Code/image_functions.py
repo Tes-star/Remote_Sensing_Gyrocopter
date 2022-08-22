@@ -6,6 +6,7 @@ import spectral as spy
 from spectral import envi
 import xmltodict as xmltodict
 import matplotlib.pyplot as plt
+from Code.functions.class_ids import map_float_id2rgb
 
 """
 Spectral Python (SPy) Functions
@@ -355,10 +356,24 @@ def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export
             # use cv2.fillPoly to convert area in polygon to mask with obj_key as value in dat_holder_matrix
             mask = cv2.fillPoly(mask, [coords], class_key)
 
+
+    # creat plot with class_rgb
+    df = pd.DataFrame(mask.reshape(mask.shape[0]*mask.shape[1], mask.shape[2]))
+    df = map_float_id2rgb(dataframe=df, column=mask.shape[2]-1)
+
+    # extract color values
+    df['class_color1'] = df['class_color'].apply(lambda x: x[0])
+    df['class_color2'] = df['class_color'].apply(lambda x: x[1])
+    df['class_color3'] = df['class_color'].apply(lambda x: x[2])
+
+    # reshape pixel to image for annotation picture
+    annotation_arr = np.array(df[['class_color1', 'class_color2', 'class_color3']])
+    annotation_arr = np.reshape(annotation_arr, (mask.shape[0], mask.shape[1], 3))
+
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.imshow(mask)
+    ax.imshow(annotation_arr)
     fig.show()
-    fig.savefig(original_name)
+    #fig.savefig(original_name)
 
     # read original_name
     path_dat = path_picture + "/" + original_name + '_.dat'
