@@ -1,11 +1,14 @@
 import os
-import cv2
-import numpy as np
 import pandas as pd
 import spectral as spy
-from spectral import envi
-import xmltodict as xmltodict
-import matplotlib.pyplot as plt
+from Code.find_path_nextcloud import find_path_nextcloud
+
+def isfloat(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
 
 def import_labeled_data(path_labeled_folder:str):
 
@@ -17,9 +20,11 @@ def import_labeled_data(path_labeled_folder:str):
         if not file.endswith('.dat'):
             files.remove(file)
 
-    for file in files:
-        if 'wrong_image_size' in file:
-            files.remove(file)
+    if 'wrong_image_size' in files:
+        files.remove('wrong_image_size')
+
+    if 'old'in files:
+        files.remove('old')
 
     # Spaltennamen des DataFrames bilden
     path_dat = path_labeled_folder + os.path.splitext(files[0])[0] + '.dat'
