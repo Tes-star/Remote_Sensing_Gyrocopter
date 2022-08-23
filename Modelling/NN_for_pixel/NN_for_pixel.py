@@ -21,7 +21,9 @@ dropout_rate = 0.05
 
 # define the keras model
 input_x = Input(X_train.shape[1], name='input_layer')
-hl1 = Dense(512, activation='relu')(input_x)
+hl0 = Dense(1024, activation='relu')(input_x)
+drop0 = Dropout(rate=dropout_rate)(hl0)
+hl1 = Dense(512, activation='relu')(drop0)
 drop1 = Dropout(rate=dropout_rate)(hl1)
 hl2 = Dense(256, activation='relu')(drop1)
 drop2 = Dropout(rate=dropout_rate)(hl2)
@@ -30,6 +32,8 @@ drop3 = Dropout(rate=dropout_rate)(hl3)
 hl4 = Dense(64, activation='relu')(drop3)
 drop4 = Dropout(rate=dropout_rate)(hl3)
 hl5 = Dense(32, activation='relu')(drop4)
+drop5 = Dropout(rate=dropout_rate)(hl4)
+hl6 = Dense(16, activation='relu')(drop5)
 output = Dense(y_train.shape[1], activation='softmax')(hl5)
 
 model = Model(inputs=input_x, outputs=output, name='Basemodel_NN_for_pixel')
@@ -37,4 +41,4 @@ model = Model(inputs=input_x, outputs=output, name='Basemodel_NN_for_pixel')
 # compile the keras model
 model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3), metrics=['accuracy'])
 print(model.summary())
-model.fit(X_train, y_train, epochs=10000, batch_size=10000, validation_data=(X_test, y_test), callbacks=[WandbCallback()])
+model.fit(X_train, y_train, epochs=2000, batch_size=10000, validation_data=(X_test, y_test), callbacks=[WandbCallback()])
