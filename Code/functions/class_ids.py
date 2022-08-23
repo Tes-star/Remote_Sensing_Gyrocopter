@@ -4,6 +4,11 @@ def get_class_dictionary():
     return class_dict
 
 
+def get_class_list():
+    class_lst = ['None', 'Wiese', 'Strase','Auto','See','Schienen', 'Haus', 'Wald']
+    return class_lst
+
+
 def map_float_id2rgb(dataframe, column):
     df = dataframe.copy()
 
