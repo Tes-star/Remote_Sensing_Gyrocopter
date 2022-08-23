@@ -1,4 +1,3 @@
-
 def get_class_dictionary():
     class_dict = {0: 'None', 1: 'Wiese', 2: 'Strase', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
     return class_dict
@@ -64,3 +63,21 @@ def new_label_mapping(datafrane, map_column, label_mapping):
     datafrane[map_column] = datafrane[map_column].replace([0, 1, 2, 3, 4, 5, 6, 7], new_labels)
 
     return datafrane
+
+
+def new_label_mapping_cnn(label_mapping):
+    match label_mapping:
+        case None:
+            label_mapping = [0, 1, 2, 3, 4, 5, 6, 7]
+        case 'Ohne_Auto_See':
+            label_mapping = [0, 1, 2, 2, 0, 3, 4, 5]
+            # Auto= zaehlt auch zur Straße
+            # See=0
+        case 'Grünflächen':
+            label_mapping = [0, 1, 2, 2, 0, 3, 4, 1]
+            # Auto=2
+            # See=0
+            # Wald=Wiese=1
+
+
+    return label_mapping

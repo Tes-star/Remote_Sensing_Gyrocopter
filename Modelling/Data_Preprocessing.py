@@ -6,6 +6,7 @@ import spectral.io.envi as envi
 from sklearn.preprocessing import StandardScaler
 
 from Code.find_path_nextcloud import find_path_nextcloud
+from Code.functions.class_ids import new_label_mapping_cnn
 
 
 def import_labeled_data():
@@ -46,19 +47,7 @@ def import_labeled_data():
 
 def import_labeled_photos(bands=slice(0, 109), label_mapping=None):
     # Standart Label Mapping
-    # labels = {0: 'None', 1: 'Wiese', 2: 'Straße', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
-    match label_mapping:
-        case None:
-            label_mapping = [0, 1, 2, 3, 4, 5, 6, 7]
-        case 'Ohne_Auto_See':
-            label_mapping = [0, 1, 2, 0, 0, 3, 4, 5]
-            # Auto=0
-            # See=0
-        case 'Grünflächen':
-            label_mapping = [0, 1, 2, 0, 0, 3, 4, 1]
-            # Auto=0
-            # See=0
-            # Wald=Wiese
+    label_mapping=new_label_mapping_cnn(label_mapping)
 
     # Pfad Nextcloud bestimmen
 
@@ -140,6 +129,14 @@ if __name__ == '__main__':
     bands.append(107)
     bands.append(108)
     x, y = import_labeled_photos(bands=bands, label_mapping='Ohne_Auto_See')
-    del x
+
+    x_train = x[0:22]
+    x_train.append(x[29:])
+    y_train = y[0:22]
+    y_train.append(y[29:])
+
+    x_test = x[22:29]
+    y_test = y[22:29]
+    del x,y
 
 
