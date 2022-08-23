@@ -82,10 +82,13 @@ def cnn_sweep():
     # import Data
     x, y = import_labeled_photos(bands=bands, label_mapping=label_mapping)
 
-    x_train = x[6:]
-    y_train = y[6:]
-    x_test = x[0:6]
-    y_test = y[0:6]
+    x_train = x[0:22]
+    x_train.append(x[29:])
+    y_train = y[0:22]
+    y_train.append(y[29:])
+
+    x_test = x[22:29]
+    y_test = y[22:29]
     del x, y
 
     # add augmentations
