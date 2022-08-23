@@ -41,4 +41,4 @@ model = Model(inputs=input_x, outputs=output, name='Basemodel_NN_for_pixel')
 # compile the keras model
 model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3), metrics=['accuracy'])
 print(model.summary())
-model.fit(X_train, y_train, epochs=2000, batch_size=10000, validation_data=(X_test, y_test), callbacks=[WandbCallback()])
+model.fit(X_train, y_train, epochs=5000, batch_size=10000, validation_data=(X_test, y_test), callbacks=[WandbCallback()])
