@@ -1,7 +1,7 @@
 from Code.functions.convert_annotations import convert_xml_annotation_to_mask
 from Code.functions.class_ids import map_float_id2rgb, get_class_list
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
-from statsmodels.stats.inter_rater import fleiss_kappa
+#from statsmodels.stats.inter_rater import fleiss_kappa
 from sklearn.metrics import cohen_kappa_score
 import matplotlib.pyplot as plt
 import spectral as spy
@@ -24,13 +24,13 @@ path_labeled = '../data/inter_annotator_agreement/labeled'
 #                                windowsize_c=windowsize_c)
 
 # convert Timo annotation
-path_xml_file = '../data/inter_annotator_agreement/Export_roboflow/Teilbild_Oldenburg_00000006_00000011_1200_2200_Timo.xml'
+# path_xml_file = '../data/inter_annotator_agreement/Export_roboflow/Teilbild_Oldenburg_00000006_00000011_1200_2200_Timo.xml'
 
-convert_xml_annotation_to_mask(xml_file=path_xml_file,
-                               path_picture=path_pictures,
-                               path_export=path_labeled,
-                               windowsize_r=windowsize_r,
-                               windowsize_c=windowsize_c)
+# convert_xml_annotation_to_mask(xml_file=path_xml_file,
+#                               path_picture=path_pictures,
+#                               path_export=path_labeled,
+#                               windowsize_r=windowsize_r,
+#                               windowsize_c=windowsize_c)
 
 # compare annotations
 
@@ -54,7 +54,7 @@ def create_files(filename):
 
     # reshape pixel to image for rgb picture and select rgb channels
     rgb_arr = np.reshape(np.array(img_df), (200, 200, 114))
-    rgb_arr = spy.get_rgb(rgb_arr, bands=(59, 26, 1), stretch=(0.01, 0.99), stretch_all=True)
+    rgb_arr = spy.get_rgb(rgb_arr, bands=(59, 26, 1), stretch=(0.03, 0.97), stretch_all=True)
 
     # reshape pixel to image for annotation picture
     annot_arr = np.array(img_df[['class_color1', 'class_color2', 'class_color3']])
@@ -69,13 +69,13 @@ filename_tvw = '../data/inter_annotator_agreement/labeled/Teilbild_Oldenburg_000
 
 # create images
 img_df_fg, annot_arr_fg, rgb_arr = create_files(filename=filename_fg)
-img_df_tvw, annot_arr_tvw, rgb_arr = create_files(filename=filename_fg)
+img_df_tvw, annot_arr_tvw, rgb_arr = create_files(filename=filename_tvw)
 
 # show rgb regions with different annotations
 test = annot_arr_fg.copy()
 test[:50, :50, :] = 0
 
-mask = test != annot_arr_fg
+mask = annot_arr_fg != annot_arr_tvw
 mask = mask * 1
 diff_annot = rgb_arr * mask
 
@@ -106,3 +106,12 @@ ax.set_xlabel('Annotation Timo')
 plt.title('Vertauschungsmatrix Annotation Felix vs. Timo')
 plt.show()
 fig.savefig('../data/inter_annotator_agreement/Vertauschungsmatrix_Annotation.png')
+
+# calculate cohen_kappa_score
+iia_score = cohen_kappa_score(y1=img_df_fg[109], y2=img_df_tvw[109])
+print('cohen_kappa_score', str(iia_score))
+
+# calculate accuracy_score
+acc = accuracy_score(y_true=img_df_fg[109], y_pred=img_df_tvw[109])
+print('accuracy_score', str(acc))
+
