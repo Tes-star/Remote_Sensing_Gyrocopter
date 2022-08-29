@@ -66,4 +66,3 @@ NN_for_pixel importiert.
 ### `combine_subimages.py`
 In `combine_subimages.py`  wird die Funktion erstellt, die Teilbilder zu einem Gesamtbild anhand der Grid-Position 
 zusammenführt und abspeichert.
-
