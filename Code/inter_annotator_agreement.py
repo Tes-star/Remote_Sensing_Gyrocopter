@@ -126,8 +126,6 @@ nn_for_pixel = keras.models.load_model('../data/models/baseline3_nn_for_pixel.h5
 
 # import data nn_for_pixel
 df_subimage = import_labeled_data(path_labeled_folder='../data/inter_annotator_agreement/labeled')
-# df_subimage = df_subimages.loc[df_subimages['picture_name'] == df_subimages['picture_name'].unique()[0], ]
-# df_subimage = df_subimage.rename(columns={'label': 'label' + df_subimages['picture_name'].unique()[0]})
 X_nn_for_pixel = df_subimage.drop(columns=['picture_name', 'label'])
 X_nn_for_pixel = tensorflow.convert_to_tensor(X_nn_for_pixel, dtype=tensorflow.float32)
 

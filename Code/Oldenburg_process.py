@@ -1,3 +1,4 @@
+import spectral as spy
 from find_path_nextcloud import find_path_nextcloud
 from Code.functions.save_subimages_rgb import save_subimages_rgb
 from Code.functions.combine_image_bands import combine_image_bands
@@ -19,6 +20,10 @@ path_folder = path_nextcloud + 'Daten_Gyrocopter/Oldenburg'
 # define HSI filenames
 path_combined_hdr = path_folder + '/Oldenburg_combined_HSI_THERMAL_DOM.hdr'
 path_combined_dat = path_folder + '/Oldenburg_combined_HSI_THERMAL_DOM.dat'
+
+# save rgb image
+# img = spy.envi.open(file=path_combined_hdr, image=path_combined_dat)
+# spy.save_rgb(filename='data/Oldenburg.png', data=img, bands=(59, 26, 1), stretch=(0.1, 0.99), stretch_all=True, format='png')
 
 # split image in subimages
 # path_grid_folder = split_image(hdr_file=path_combined_hdr, dat_file=path_combined_dat, window_width=200,
