@@ -7,12 +7,25 @@ def combine_image_bands(path_data: str,
                         hdr_file_thermal: str, dat_file_thermal: str,
                         hdr_file_dom: str, dat_file_dom: str,
                         export_title: str):
+    """
+    function which combine different data formats from one picture, requires images with same shape in length and width
+    :param path_data: folder where hsi, thermal and dom pictures are saves
+    :param hdr_file_hsi: filename
+    :param dat_file_hsi: filename
+    :param hdr_file_thermal: filename
+    :param dat_file_thermal: filename
+    :param hdr_file_dom: filename
+    :param dat_file_dom: filename
+    :param export_title: name of image with combined bands
+    :return: save image with combined bands and return absolute path to it
+    """
+
     # read hyperspectral image
     path_hdr = path_data + '/' + hdr_file_hsi
     path_dat = path_data + '/' + dat_file_hsi
     img_his = envi.open(file=path_hdr, image=path_dat)
 
-    ## read thermal image
+    # read thermal image
     path_hdr = path_data + '/' + hdr_file_thermal
     path_dat = path_data + '/' + dat_file_thermal
     img_thermal = envi.open(file=path_hdr, image=path_dat)

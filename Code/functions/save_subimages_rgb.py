@@ -1,15 +1,19 @@
 import os
-import cv2
-import numpy as np
-import pandas as pd
 import spectral as spy
 from spectral import envi
-import xmltodict as xmltodict
-import matplotlib.pyplot as plt
 
 
 def save_subimages_rgb(path_subimages: str, rgb_bands: tuple, path_export_folder: str, window_width: int,
                        window_height: int):
+    """
+    function which create for each subimage in path_subimages a jpeg-picture and use bands in rgb_bands
+    :param path_subimages: folder path
+    :param rgb_bands: list with number of bands for red, green, blue
+    :param path_export_folder: folter path
+    :param window_width: width of Subimages
+    :param window_height: height of Subimages
+    :return: save rgb Subimages in  path_export_folder
+    """
     # extract grid_size
     windowsize_c = int(window_width)
     windowsize_r = int(window_height)

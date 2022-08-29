@@ -1,7 +1,7 @@
 from Code.functions.convert_annotations import convert_xml_annotation_to_mask
 from Code.functions.class_ids import map_float_id2rgb, get_class_list
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
-#from statsmodels.stats.inter_rater import fleiss_kappa
+from statsmodels.stats.inter_rater import fleiss_kappa
 from sklearn.metrics import cohen_kappa_score
 import matplotlib.pyplot as plt
 import spectral as spy
@@ -114,4 +114,3 @@ print('cohen_kappa_score', str(iia_score))
 # calculate accuracy_score
 acc = accuracy_score(y_true=img_df_fg[109], y_pred=img_df_tvw[109])
 print('accuracy_score', str(acc))
-

@@ -1,14 +1,27 @@
 def get_class_dictionary():
+    """
+    :return: dictionary key = class_id, value = class_name  
+    """
     class_dict = {0: 'None', 1: 'Wiese', 2: 'Strase', 3: 'Auto', 4: 'See', 5: 'Schienen', 6: 'Haus', 7: 'Wald'}
     return class_dict
 
 
 def get_class_list():
+    """
+    :return: list with ordered class_names 
+    """
     class_lst = ['None', 'Wiese', 'Strase','Auto','See','Schienen', 'Haus', 'Wald']
     return class_lst
 
 
 def map_float_id2rgb(dataframe, column):
+    """
+    Map class_id to rgb values
+    :param dataframe: dataframe which columns represent bands and every row is one pixel 
+    :param column: column with map-values (label-column)
+    :return: dataframe with new colum class_color consist of list with rgb values
+    """
+    
     df = dataframe.copy()
 
     df['class_color'] = df[column].map(
@@ -27,6 +40,13 @@ def map_float_id2rgb(dataframe, column):
 
 
 def map_int_id2name(dataframe, column):
+    """
+    Map class_id to rgb values
+    :param dataframe: dataframe which columns represent bands and every row is one pixel 
+    :param column: column with map-values (label-column)
+    :return: dataframe with new colum class_color consist of list with rgb values
+    """
+    
     df = dataframe.copy()
 
     df['class_name'] = df[column].map(
@@ -43,7 +63,15 @@ def map_int_id2name(dataframe, column):
     return df
 
 
-def new_label_mapping(datafrane, map_column, label_mapping):
+def new_label_mapping(dataframe, map_column, label_mapping):
+    """
+    function which replace specific class ids to other class ids
+    :param dataframe: dataframe which columns represent bands and every row is one pixel
+    :param map_column: column with map-values (label-column)
+    :param label_mapping: string which represent map-values
+    :return: input dataframe with mapped values in map_column
+    """
+
     match label_mapping:
         case None:
             new_labels = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -60,12 +88,17 @@ def new_label_mapping(datafrane, map_column, label_mapping):
             # See=0
             # Wald=Wiese=1
 
-    datafrane[map_column] = datafrane[map_column].replace([0, 1, 2, 3, 4, 5, 6, 7], new_labels)
+    dataframe[map_column] = dataframe[map_column].replace([0, 1, 2, 3, 4, 5, 6, 7], new_labels)
 
-    return datafrane
+    return dataframe
 
 
 def new_label_mapping_cnn(label_mapping):
+    """
+    function which replace specific class ids to other class ids
+    :param label_mapping: string which represent map-values
+    :return: list with label_mapping
+    """
     match label_mapping:
         case None:
             label_mapping = [0, 1, 2, 3, 4, 5, 6, 7]

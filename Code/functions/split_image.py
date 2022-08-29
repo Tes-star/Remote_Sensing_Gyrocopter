@@ -1,11 +1,5 @@
 import os
-import cv2
-import numpy as np
-import pandas as pd
-import spectral as spy
 from spectral import envi
-import xmltodict as xmltodict
-import matplotlib.pyplot as plt
 
 
 def split_image(hdr_file: str, dat_file: str, window_width: int, window_height: int, export_path: str,
@@ -19,7 +13,7 @@ def split_image(hdr_file: str, dat_file: str, window_width: int, window_height: 
     :param export_path: path to which the Subimages are to be saved
     :param export_title: title of the image which is included in the export name
     :param stop_after_row: optional number if not all Subimages should be saved
-    :return: save Subimages
+    :return: save Subimages and return absolute folder_path of it
     """
 
     # read image

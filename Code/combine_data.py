@@ -1,8 +1,7 @@
 # Import Packages
-import numpy as np
 from spectral import envi
-from image_functions import *
 from find_path_nextcloud import find_path_nextcloud
+from Code.functions.combine_image_bands import combine_image_bands
 
 print('Anfang')
 

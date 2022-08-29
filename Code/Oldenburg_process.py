@@ -1,6 +1,7 @@
 from find_path_nextcloud import find_path_nextcloud
-from image_functions import *
-import spectral as spy
+from Code.functions.save_subimages_rgb import save_subimages_rgb
+from Code.functions.combine_image_bands import combine_image_bands
+from Code.functions.convert_annotations import convert_all_annotations
 
 # find project path in nextcloud
 path_nextcloud = find_path_nextcloud()

@@ -1,24 +1,31 @@
 import os
-import cv2
 import numpy as np
-import pandas as pd
-import spectral as spy
 from spectral import envi
-import xmltodict as xmltodict
-import matplotlib.pyplot as plt
+
+"""
+function which split one Image in multiple Subimages and save it
+:param hdr_file: envi-header-file with ending .hdr
+:param dat_file: envi-image-file with ending .dat
+:param window_width: width of Subimages
+:param window_height: height of Subimages
+:param export_path: path to which the Subimages are to be saved
+:param export_title: title of the image which is included in the export name
+:param stop_after_row: optional number if not all Subimages should be saved
+:return: save Subimages
+"""
 
 
 def combine_subimages(hdr_file: str, dat_file: str, path_grid_subimages: str, path_export: str, window_width: int,
                       window_height: int, combine_annotated_images: bool = False):
     """
     function which combine multiple Subimages to one big picture and save it
-    :param window_height:
-    :param window_width:
-    :param path_export:
+    :param window_height: height of Subimages
+    :param window_width: width of Subimages
+    :param path_export: export place of the big picture
     :param hdr_file: original big picture envi-header-file with ending .hdr
     :param dat_file: original big picture envi-image-file with ending .dat
     :param path_grid_subimages: path to grid folder with subimages
-    :return: save big pictures
+    :return: save big pictures and return absolute path of it
     """
 
     # read image

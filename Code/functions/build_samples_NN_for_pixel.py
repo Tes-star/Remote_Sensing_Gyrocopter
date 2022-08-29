@@ -1,37 +1,25 @@
-import pandas as pd
-
 from Code.functions.train_test_images import train_test_image_names
 from Code.functions.import_labeled_data import import_labeled_data
 from Code.find_path_nextcloud import find_path_nextcloud
 from Code.functions.class_ids import new_label_mapping
-from sklearn.model_selection import StratifiedKFold
 from keras.utils.np_utils import to_categorical
+import pandas as pd
 import tensorflow
 
 
-
 def import_samples_NN_for_pixel(label_mapping=None):
+    """
+    functions which import train and test data with x and y for model NN_for_pixel
+    :param label_mapping: replace specific class ids to other class ids
+    :return:  tensor X_train, y_train, X_test, y_test
+    """
+
     # import data
     path_nextcloud = find_path_nextcloud()
     path_labeled_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_200_200/labeled/"
     df_annotations = import_labeled_data(path_labeled_folder=path_labeled_folder)
 
-    df_annotations = new_label_mapping(datafrane=df_annotations, map_column='label', label_mapping=label_mapping)
-
-    # for train_index, test_index in StratifiedKFold(random_state=0, shuffle=True, n_splits=5).split(df_annotations, df_annotations['label']):
-    #
-    #     # cut df_annotations in x and y
-    #     train = df_annotations.iloc[train_index]
-    #     X_train = train.drop(columns=['label', 'picture_name'])
-    #     y_train = train['label']
-    #
-    #     test = df_annotations.iloc[test_index]
-    #     X_test = test.drop(columns=['label', 'picture_name'])
-    #     y_test = test['label']
-    #
-    #     break
-
-    # cut df_annotations in x and y
+    df_annotations = new_label_mapping(dataframe=df_annotations, map_column='label', label_mapping=label_mapping)
 
     # import train and test image names
     df_train, df_test = train_test_image_names()

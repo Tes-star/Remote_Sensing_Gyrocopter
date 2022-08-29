@@ -2,6 +2,10 @@ import pandas as pd
 
 
 def train_test_image_names():
+    """
+    function which return dataframe with column 'picture_name' including subimage_names without file extension for train and test data
+    :return: df_train, df_test
+    """
     train_images = ['Teilbild_Oldenburg_00000000_00000000_0_0_',
                     'Teilbild_Oldenburg_00000000_00000002_0_400_',
                     'Teilbild_Oldenburg_00000000_00000008_0_1600_',

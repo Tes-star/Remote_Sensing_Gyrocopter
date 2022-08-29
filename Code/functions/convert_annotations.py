@@ -8,8 +8,20 @@ import xmltodict as xmltodict
 import matplotlib.pyplot as plt
 from Code.functions.class_ids import map_float_id2rgb
 
+
 def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export: str, windowsize_r: int,
                                    windowsize_c: int):
+    """
+    function which convert xml annotation from Roboflow to mask and export annotated picture with label-band,
+    requires picture in envi format in path_picture with same picture name as xml_file
+    :param xml_file: absolute path plus filename from xml annotation file
+    :param path_picture: path to subimages in envi format
+    :param path_export: path to save labeled picture
+    :param windowsize_r: width of Subimages
+    :param windowsize_c: height of Subimages
+    :return: save labeled images with label-band in path_export and return image array and mask
+    """
+
     # read xml-file and convert to dictionary
     with open(xml_file) as fd:
         doc = xmltodict.parse(fd.read())
@@ -125,6 +137,16 @@ def convert_xml_annotation_to_mask(xml_file: str, path_picture: str, path_export
 
 def convert_all_annotations(path_annotations: str, path_pictures: str, path_export: str, windowsize_r: int,
                             windowsize_c: int):
+    """
+
+    :param path_annotations: path to folder with xml annotation files
+    :param path_pictures: path to subimages in envi format
+    :param path_export: path to save labeled picture
+    :param windowsize_r: width of Subimages
+    :param windowsize_c: height of Subimages
+    :return: save labeled images with label-band in path_export
+    """
+
     # build list with all files in path_data
     files = os.listdir(path_annotations)
 
