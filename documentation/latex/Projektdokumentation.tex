@@ -1,7 +1,7 @@
 % ----------------------- Vorlage einlesen ---------------------------
 \input{Latexvorlage_Skripte.tex}
 % ----------------------- Erstellung neuer Kommandos ---------------------------
-\newcommand{\Heading}{Team Gyrcopter}
+\newcommand{\Heading}{Team Gyrocopter}
 \newcommand{\Modul}{Projekt Data Science}
 
 \newcommand{\Dozent}{Dozent: Prof. Dr. Christian Hänig}
@@ -39,37 +39,105 @@ Die neue Aufgabenstellung befasste sich nun mit der Bildsegmentierung der Luftau
 das Bild beschreiben. Zu den klassifizieren Instanzen gehören Wiese, Wald, Schienen, Straße, Auto, See, Häuser und None.
 
 \section{Projektbestandteile und Zeitplan}
+Für die Projektplanung setzten wir uns für jeden Schritt im Cross Industry Standard Process for Data Mining eine Deadline
+und bildeten dementsprechend unsere Work-Packages.
 
-\subsection{}
+\begin{center}
+\includegraphics[width=15cm]{../../data/Zeitplan}
+\end{center}
 
-%% siehe Dokument Work Packages
+\subsection{Bussines und Data Unterstanding}
+Zu Beginn des Projektes mussten wir uns in die Thematik einarbeiten und eine geeignete Aufgabenstellung finden.
+Wir führten eine Recherche zum Thema \"Analyse von Hyperspektraldaten mit Hilfe von Python\"  durch und arbeiteten an
+dem Import der zur Verfügung gestellten Daten.
 
+\subsection{Data Preparation}
+Der Großteil des Projekts beschäftigte sich mit der Datenaufbereitung bzw. Vorverarbeitung.
+Von Beginn an war klar, dass das Gesamtbild mit 3500x1800 Pixel nicht als Ganzes verarbeitet werden kann und wir Teilbilder erzeugen müssen.
+Des Weiteren mussten Bilder annotiert werden und dessen Label den Bildern zugeordnet werden.
+Somit wurde im Teil Data Preparation mehrere Funktionen erstellt, die die im Folgenden aufgelisteten Aufgaben erledigen.
+
+\begin{itemize}
+    \item Hyperspectral-, Thermal- und Oberflächendaten zusammenführen und als ein Bild speichern
+    \item Ein Gesamtbild in mehrere Teilbilder zerlegen
+    \item Mehrere Teilbilder zu einem Gesamtbild zusammenführen
+    \item RGB und DOM Bilder von Teilbildern erzeugen
+    \item Umwandlung der Annotation vom XML-Format in ein Label-Band
+\end{itemize}
+
+Der Aufwand der Annotation sollte man hierbei jedoch nicht unterschätzen.
+
+\subsection{Modelling}
+Im Bereich des Modellings wendeten wir neben den bekannten Algorithmen wie z.B. K-Nearest-Neighbors und
+einfachen Neuronalen Netzen, gängige Convolutional Neural Networks zur Bildsegmentierung ein.
+Neben der eigentlichen Verwendung mussten wir uns zu Beginn in die Programmierbibliotheken und Model-Monitoring-Tools einarbeiten.
+
+\subsection{Evaluation}
+Anschließend an das Modelling verglichen wir fortlaufend welche Modelle besser performen und welche Ursachen es für
+schlechte Modellergebnisse gibt. In diesem Kontext führten wir auch ein Inter-Annotator-Agreement durch und
+verbesserten unsere Annotationsrichtlinien.
+
+\subsection{Deployment / Project Completion}
+Zum Projektende galt es die Gesamtarbeit final zu ordnen und für Dritte verständlich zu vervollständigen.
+Dabei erstellten wir ein Script, dass die Modellvorhersagen für das Gesamtbild durchführt und mit den selbst
+definierten Farbwerten als RGB-Bild abspeichert.
 
 
 \newpage % ----------------------- Neue Seite ---------------------------
 
 \chapter{Projektzusammenfassung}\thispagestyle{fancy}
 
+\section{Aufgabenstellung}
+Im Rahmen dieses Projektes sollen Luftaufnahmen in bis zu 8 Klassen segmentiert werden.
+Zu den klassifizieren Instanzen gehören Wiese, Wald, Schienen, Straße, Auto, See, Häuser und None.
+Die verwendeten Luftaufnahmen stammen aus Befliegung der Stadt Oldenburg aufgenommen vom Gyrocopter des Fachbereichs 3
+der Hochschule Anhalt.
+Die Daten umfassen Hyperspektral-, Thermal- und Höhenmeter-Daten.
+
+\section{Verwendete Tools}
+Die gesamte Entwicklung wurde in Python umgesetzt.
+Hierzu wurde insbesondere das Paket envi zur einfachen Verarbeitung von  envi Daten verwendet.
+
+\section{Datenvorverarbeitung}
+Die Aufnahmen wurden jeweils als getrennte Dateien für Hyperspektral-, Thermal- und Höhenmeterdaten zur Verfügung gestellt.
+Im ersten Vorverarbeitungsschritt wurden diese zusammengeführt, indem die Thermal- und Höhenmeterdaten als einzelne Bänder an die Hyperspektraldaten angefügt wurden.
+Hierbei war von Vorteil, dass die verschiedenen Daten das exakt gleiche Gebiet umfassten, sodass eine Georefferenzierung von Koordinatenpunkten nicht notwendig war.
+Für die weiteren Verarbeitungsschritte musste das Luftbild in viele Teilbilder unterteilt werden.
+Als Größe haben wir uns für 200x200 Pixel entschieden, da hierdurch bei geringem Informationsverlust der notwendige Rechenaufwand der Neuronalen Netze erheblich reduziert wird.
+
+
 \section{Annotation}
+Da keine annotierten Bilder zur Verfügung standen musste ein Teil der Bilder annotiert werden.
+Hierfür wurde aus verschiedenen Anwendungen das Online Tool Roboflow aufgrund seiner hervorragenden Nutzoberfläche ausgewählt.
+Trotz mehrfacher Anpassung unserer Annotationsrichtlinien konnten wir die RGB Teilbilder nicht konsistent genug annotieren.
+Insbesondere die Unterscheidung von Bäumen und Sträuchern (klassifiziert als Wiesen) war auf dieser Basis nicht möglich.
+Unter gleichzeitiger Betrachtung der Höhendaten war eine Annotation mit einer Übereinstimmung von ca.75\% möglich.
+
+\section{Augmentation}
 
 \section{Modellierung}
 
-\section{CNN}
+\subsection{Baseline}
+Als Baseline diente ein einfacher Pixel-basierter Ansatz. Hierbei ist jede Instanz ein Pixel und enthält ausschließlich
+die Hyperspektral-, Thermal- und Höhenmeter-Daten dieses Pixels.
+Modelliert wurde die Baseline durch ein Neuronales Netz(NN) mit folgender Struktur:
 
-\section{Verwendete Tools}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[angle=90, width=15cm]{../../data/models/baseline3_nn_for_pixel}
+\end{center}
+\end{figure}
+
+\subsection{CNN}
 
 \section{Evaluierung}
 
-\subsection{Zeitplan}
 
-\subsection{Klassifikationsergebnisse}
+\section{Hyperparametertuning}
 
-\newpage % ----------------------- Neue Seite ---------------------------
+\section{Verbesserungspotenzial}
 
-
-
-\newpage % ----------------------- Neue Seite ---------------------------
-
+\section{Learnings}
 
 
 \end{document}
