@@ -1,89 +1,141 @@
-from find_path_nextcloud import find_path_nextcloud
-import spectral as spy
-from spectral import envi
-import numpy as np
+# Packages
+from Code.functions.class_ids import map_float_id2rgb, map_int_id2name
+from Code.functions.import_labeled_data import import_labeled_data
+from Code.functions.combine_subimages import combine_subimages
+from Code.find_path_nextcloud import find_path_nextcloud
 import matplotlib.pyplot as plt
+import spectral as spy
 import pandas as pd
-import streamlit as st
+import numpy as np
+
+# Import data
+
+# Pfad Nextcloud bestimmen
+path_nextcloud = find_path_nextcloud()
+
+# Festlegung, welches Grid zusammengelegt werden soll
+windowsize_r = 200
+windowsize_c = 200
+
+# Bestimmung annotation_folder
+grid_folder = path_nextcloud + "Daten_Gyrocopter/Oldenburg/Teilbilder/grid_" + str(windowsize_r) + "_" + str(windowsize_c)
+labeled_folder = grid_folder + '/labeled/'
+
+df_annotations = import_labeled_data(path_labeled_folder=labeled_folder)
+
+# Wie viele Pixel umfassen die annotiert Bilder insgesamt? 
+
+print('Anzahl Pixel der annotierten Bilder\t', str(df_annotations.shape[0]))
+
+# Wie viele Pixel wurden in den Bildern insgesamt annotiert? 
+
+df_objects = df_annotations.loc[df_annotations['label'] != 0, ]
+print('Anzahl annotierter Pixel\t\t\t', str(df_objects.shape[0]))
+
+# Wie viel Prozent der Pixel enthalten eine Klasse ungleich None? 
+
+print('Anteil annotierter Pixel\t\t\t', str((df_objects.shape[0] / df_annotations.shape[0]*100).__round__(1)), ' %')
+
+# Wie viel Prozent der Pixel wurden pro Bild annotiert? 
+
+w = df_objects[['picture_name']].groupby(['picture_name'], as_index = False).size()
+w['percent'] = (w['size'] / 40000 * 100).__round__(1)
+print(w)
+
+# Wie sehen die Annotationen auf den Bildern aus? 
+
+for image_name in df_annotations['picture_name'].unique():
+
+    # select pixel for current image
+    image = df_annotations.loc[df_annotations['picture_name'] == image_name, ]
+    image = image.drop(columns=['picture_name'])
+
+    # convert annotation ID to class_color
+    df = map_float_id2rgb(dataframe=image, column='label')
+
+    # extract color values
+    df['class_color1'] = df['class_color'].apply(lambda x: x[0])
+    df['class_color2'] = df['class_color'].apply(lambda x: x[1])
+    df['class_color3'] = df['class_color'].apply(lambda x: x[2])
+
+    # reshape pixel to image for rgb picture and select rgb channels
+    img_rgb = np.reshape(np.array(image), (200, 200, 110))
+    rgb_image = spy.get_rgb(img_rgb, bands=(59, 26, 1), stretch=(0.01, 0.99), stretch_all=True)
+
+    # reshape pixel to image for annotation picture
+    img_arr = np.array(df[['class_color1', 'class_color2', 'class_color3']])
+    img_arr = np.reshape(img_arr, (200, 200, 3))
+
+    # count pixel for each class
+    count_class = image[['label']].groupby('label', as_index=False).size()
+    count_class = map_int_id2name(dataframe=count_class, column='label')
+
+    # create plot
+    fig, ax = plt.subplots(nrows=1, ncols=3)
+    fig.set_figwidth(15)
+    ax[0].imshow(rgb_image)
+    ax[1].imshow(img_arr)
+    label = ax[2].bar(count_class['class_name'], count_class['size'], label=count_class['size'])
+    ax[2].bar_label(label, label_type='edge')
+    plt.suptitle(image_name, fontsize=14)
+    plt.show()
+    fig.savefig('data/annotated_picture/' + image_name)
+
+# Wie sieht die Verteilung der Anzahl der annotierten Pixel über alle Klassen aus? 
+
+# count pixel for each class
+count_class = df_annotations[['label']].groupby('label', as_index=False).size()
+count_class = map_int_id2name(dataframe=count_class, column='label')
+
+# create plot
+fig, ax = plt.subplots(nrows=1, ncols=1)
+fig.set_figwidth(15)
+label = ax.bar(count_class['class_name'], count_class['size'], label=count_class['size'])
+ax.bar_label(label, label_type='edge')
+plt.show()
+fig.savefig('data/annotated_picture/Anzahl_Pixel_pro_Klasse.png')
+
+# find project path in nextcloud
+path_nextcloud = find_path_nextcloud()
+
+# define path with data
+path_folder = path_nextcloud + 'Daten_Gyrocopter/Oldenburg'
+
+# define HSI filenames
+path_combined_hdr = path_folder + '/Oldenburg_combined_HSI_THERMAL_DOM.hdr'
+path_combined_dat = path_folder + '/Oldenburg_combined_HSI_THERMAL_DOM.dat'
+
+# define path
+path_grid = path_folder + '/Teilbilder/grid_200_200/combine_annotations'
+path_export = path_folder + '/Teilbilder/grid_200_200/combine_annotations_big_picture'
+
+# Zum Ausführen muss in image_functions.py in der funktion combine_subimages muss das
+# label-band bei nicht annotierten Bilder auskommentiert werden
+
+big_picture = combine_subimages(hdr_file=path_combined_hdr, dat_file=path_combined_dat,
+                                path_grid_subimages=path_grid,
+                                path_export=path_export, window_width=200, window_height=200,
+                                combine_annotated_images=True)
 
 
-@st.cache
-def isfloat(num):
-    try:
-        float(num)
-        return True
-    except ValueError:
-        return False
+arr = big_picture.load()
 
+# Umwandlung in DataFrame um class_id auf class_rgb zu mappen
+df = pd.DataFrame(arr.reshape(6930000,110))
+df = map_float_id2rgb(dataframe=df, column=109)
 
-@st.cache
-def read_data():
+# extract color values
+df['class_color1'] = df['class_color'].apply(lambda x: x[0])
+df['class_color2'] = df['class_color'].apply(lambda x: x[1])
+df['class_color3'] = df['class_color'].apply(lambda x: x[2])
 
-    # define path
-    path_hdr = '../data/Oldenburg_grid_200_200/labeled/Teilbild_Oldenburg_00000000_00000000_0_0_.hdr'
-    path_dat = path_hdr[:-4] + '.dat'
+# reshape pixel to image for annotation picture
+img_arr = np.array(df[['class_color1', 'class_color2', 'class_color3']])
+img_arr = np.reshape(img_arr, (1980, 3500, 3))
 
-    # load image
-    img = envi.open(file=path_hdr, image=path_dat)
+fig, ax = plt.subplots(figsize=(50, 30))
+ax.imshow(img_arr)
+fig.show()
+fig.savefig('data/annotated_picture/big_picture_annotations', dpi=300)
 
-    # load image array
-    arr = img.load()
-
-    # convert only wavelength into dataframe and round numbers
-    bands = pd.DataFrame({'wavelength': [x for x in img.metadata['wavelength'] if isfloat(x)]})
-    bands['wavelength'] = bands['wavelength'].astype(float).round(1)
-    bands = bands['wavelength'].to_list()
-    bands.extend(['thermal', 'dom', 'label'])
-
-    # convert array in dataframe
-    # every line represent one pixel
-    # every column represent one band
-    df_bands = pd.DataFrame(arr.reshape((40000, 110)), columns=bands)
-
-    return img, arr, df_bands
-
-
-# Read Data #############################################################################
-
-img, arr_img, df_bands = read_data()
-
-#########################################################################################
-
-@st.cache
-def rgb_image():
-    rgb_image = spy.get_rgb(arr_img, bands=(59, 26, 1), stretch=(0.01, 0.99), stretch_all=True)
-    return rgb_image
-
-
-# plot image
-fig, ax = plt.subplots(figsize=(8, 8))
-ax.imshow(rgb_image())
-st.pyplot(fig)
-
-# plot label mask
-v = spy.imshow(classes=arr_img[:,:,109])
-fig, ax = plt.subplots(figsize=(8, 8))
-ax.imshow(v.class_rgb)
-st.pyplot(fig)
-
-# plot image with mask
-fig, ax = plt.subplots(figsize=(8, 8))
-ax.imshow(rgb_image())
-ax.imshow(arr_img[:,:,109], alpha=0.35)
-st.pyplot(fig)
-
-st.markdown('### Vergleich von Pixeln')
-
-w = df_bands.loc[df_bands['label'] == 1, ]
-
-# Plot Spectrum
-fig, ax = plt.subplots(figsize=(8, 4))
-for i in range (5,55):
-    ax.plot(w.columns[:106], w.iloc[i, :106], '-y')
-st.pyplot(fig)
-
-
-
-
-print('Ende')
-
+print('Fertig')
