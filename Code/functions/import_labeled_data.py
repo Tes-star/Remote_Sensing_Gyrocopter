@@ -34,8 +34,8 @@ def import_labeled_data(path_labeled_folder: str, import_labeled_images: bool = 
         files.remove('old')
 
     # Spaltennamen des DataFrames bilden
-    path_dat = path_labeled_folder + os.path.splitext(files[0])[0] + '.dat'
-    path_hdr = path_labeled_folder + os.path.splitext(files[0])[0] + '.hdr'
+    path_dat = path_labeled_folder + '/' + os.path.splitext(files[0])[0] + '.dat'
+    path_hdr = path_labeled_folder + '/' + os.path.splitext(files[0])[0] + '.hdr'
 
     # load image
     img = spy.envi.open(file=path_hdr, image=path_dat)
