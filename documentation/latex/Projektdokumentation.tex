@@ -16,7 +16,7 @@
 
 \section{Kontext}
 
-Bei der Findung eines geeigneten Themas für die Projektarbeit des Modul \"Projekt Data Science\" suchten wir
+Bei der Findung eines geeigneten Themas für die Projektarbeit des Modul \glqq Projekt Data Science\grqq{}  suchten wir
 nach einer Problemstellung im Bereich der Bildverarbeitung von Luftaufnahmen.
 In diesem Zusammenhang lernten wir Herrn Prof. Dr. Bannehr vom Fachbereich 3 der Hochschule Anhalt kennen.
 Herr Bannehr befasst sich mit dem Aufgabengebiet der Geodatenerfassung und besitzt am Fachbereich unter anderem einen
@@ -28,12 +28,12 @@ nach Begutachtung der Datengrundlage eine geeignete Aufgabenstellung.
 Die Datengrundlage umfasste die Luftaufnahmen der Befliegung von Oldenburg und Dessau.
 Dabei handelte es sich bei den Datenformaten um Hyperspektral-, Thermal- und Höhenmeter-Daten.
 Leider wurde bei der Befliegung von Dessau aber keine Thermaldaten aufgenommen und weil das übermittelte Gesamtbild
-zusätzliche Prozessierungsfehler erhielten verwendeten wir nur die Daten von Oldenburg.
+Prozessierungsfehler erhielt verwendeten wir nur die Daten von Oldenburg.
 
 \section{Aufgabenstellung}
 Bei der anfänglichen Aufgabenstellung von Herrn Bannehr handelte es sich um einen Klassifikationsvergleich von Dachmaterialien.
 Geplant war der Vergleich der Ergebnisse der Methoden des Fachbereichs 3 zu unseren Ergebnissen mit mehr individualisierbaren Methoden.
-Da sich nach den ersten Wochen der Bearbeitung herausstellte, dass es keine annotierten Daten gibt und keine Vergleichsarbeit gibt,
+Da sich nach den ersten Wochen der Bearbeitung herausstellte, dass es keine annotierten Daten gibt und keine Vergleichsarbeit existiert,
 änderten wir unter Absprach mit Herrn Bannehr das Thema.\\
 Die neue Aufgabenstellung befasste sich nun mit der Bildsegmentierung der Luftaufnahme in acht Klassen, die fast vollständig
 das Bild beschreiben. Zu den klassifizieren Instanzen gehören Wiese, Wald, Schienen, Straße, Auto, See, Häuser und None.
@@ -48,39 +48,42 @@ und bildeten dementsprechend unsere Work-Packages.
 
 \subsection{Bussines und Data Unterstanding}
 Zu Beginn des Projektes mussten wir uns in die Thematik einarbeiten und eine geeignete Aufgabenstellung finden.
-Wir führten eine Recherche zum Thema \"Analyse von Hyperspektraldaten mit Hilfe von Python\"  durch und arbeiteten an
+Wir führten eine Recherche zum Thema \glqq Analyse von Hyperspektraldaten mit Hilfe von Python\grqq{}  durch und arbeiteten an
 dem Import der zur Verfügung gestellten Daten.
 
 \subsection{Data Preparation}
-Der Großteil des Projekts beschäftigte sich mit der Datenaufbereitung bzw. Vorverarbeitung.
-Von Beginn an war klar, dass das Gesamtbild mit 3500x1800 Pixel nicht als Ganzes verarbeitet werden kann und wir Teilbilder erzeugen müssen.
+Der Großteil des Projekts beschäftigte sich mit der Datenaufbereitung bzw. -vorverarbeitung.
+Von Beginn an war klar, dass das Gesamtbild mit 3500x1980 Pixel nicht als Ganzes verarbeitet werden kann und wir Teilbilder erzeugen müssen.
 Des Weiteren mussten Bilder annotiert werden und dessen Label den Bildern zugeordnet werden.
 Somit wurde im Teil Data Preparation mehrere Funktionen erstellt, die die im Folgenden aufgelisteten Aufgaben erledigen.
 
 \begin{itemize}
-    \item Hyperspectral-, Thermal- und Oberflächendaten zusammenführen und als ein Bild speichern
+    \item Hyperspectral-, Thermal- und Oberflächendaten zusammenführen
     \item Ein Gesamtbild in mehrere Teilbilder zerlegen
     \item Mehrere Teilbilder zu einem Gesamtbild zusammenführen
-    \item RGB und DOM Bilder von Teilbildern erzeugen
+    \item RGB- und DOM-Bilder von Teilbildern erzeugen
     \item Umwandlung der Annotation vom XML-Format in ein Label-Band
 \end{itemize}
 
 Der Aufwand der Annotation sollte man hierbei jedoch nicht unterschätzen.
 
 \subsection{Modelling}
-Im Bereich des Modellings wendeten wir neben den bekannten Algorithmen wie z.B. K-Nearest-Neighbors und
-einfachen Neuronalen Netzen, gängige Convolutional Neural Networks zur Bildsegmentierung ein.
-Neben der eigentlichen Verwendung mussten wir uns zu Beginn in die Programmierbibliotheken und Model-Monitoring-Tools einarbeiten.
+Im Bereich des Modellings wendeten wir neben den bekannten Modellen wie z.B. K-Nearest-Neighbors und
+einfachen Neuronalen Netzen, gängige Convolutional Neural Networks (CNN) zur Bildsegmentierung an.
+Vor der eigentlichen Modellierung mussten wir uns zu Beginn in die Programmierbibliotheken und Model-Monitoring-Tools
+einarbeiten.
 
 \subsection{Evaluation}
-Anschließend an das Modelling verglichen wir fortlaufend welche Modelle besser performen und welche Ursachen es für
-schlechte Modellergebnisse gibt. In diesem Kontext führten wir auch ein Inter-Annotator-Agreement durch und
-verbesserten unsere Annotationsrichtlinien.
+Anschließend an das Modelling verglichen wir fortlaufend welche Modelle besser performen und welche Ursachen für
+schlechte Modellergebnisse verantwortlich sein könnten.
+In diesem Kontext führten wir auch ein Inter-Annotator-Agreement durch und verbesserten unsere Annotationsrichtlinien.
 
 \subsection{Deployment / Project Completion}
 Zum Projektende galt es die Gesamtarbeit final zu ordnen und für Dritte verständlich zu vervollständigen.
 Dabei erstellten wir ein Script, dass die Modellvorhersagen für das Gesamtbild durchführt und mit den selbst
 definierten Farbwerten als RGB-Bild abspeichert.
+Zuletzt vervollständigten wir noch Lücken in der Quelltext-Dokumentation und kontrollierten die erforderlichen
+Anforderungen für die Abgabe.
 
 
 \newpage % ----------------------- Neue Seite ---------------------------
@@ -96,7 +99,7 @@ Die Daten umfassen Hyperspektral-, Thermal- und Höhenmeter-Daten.
 
 \section{Verwendete Tools}
 Die gesamte Entwicklung wurde in Python umgesetzt.
-Hierzu wurde insbesondere das Paket envi zur einfachen Verarbeitung von  envi Daten verwendet.
+Hierzu wurde insbesondere das Paket spectral zur einfachen Verarbeitung von envi-Daten verwendet.
 
 \section{Datenvorverarbeitung}
 Die Aufnahmen wurden jeweils als getrennte Dateien für Hyperspektral-, Thermal- und Höhenmeterdaten zur Verfügung gestellt.
