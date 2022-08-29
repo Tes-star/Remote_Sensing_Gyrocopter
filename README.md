@@ -57,3 +57,14 @@ Zur Kontrolle der Annotation wurden das RGB-Bild, die Annotation und die Klassen
 - Eine genauere Darstellung der Ergebnisse wurde durch Gegenüberstellung der Annotation, der Vorhersage, der Nachbearbeitung der Vorhersage mit dem RGB-Bild zeigt das folgende Beispielbild.
 
 ![](data/pred_pictures/Teilbild_Oldenburg_00000000_00000000_0_0_.png)
+
+## Evaluierung
+
+### baseline3_nn_for_pixel.h5
+
+- Accuracy Train: 84,64 %
+- Accuracy Test: 82,1 %
+
+![](data/pred_pictures/cm_train_baseline3_nn_for_pixel.png)
+
+![](data/pred_pictures/cm_test_baseline3_nn_for_pixel.png)

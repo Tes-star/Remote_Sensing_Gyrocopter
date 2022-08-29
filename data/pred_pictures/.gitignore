@@ -1,3 +1,5 @@
 *.png
 !big_picture_prediction_baseline3_nn_for_pixel.png
 !Teilbild_Oldenburg_00000000_00000000_0_0_.png
+!cm_train_baseline3_nn_for_pixel.png
+!cm_test_baseline3_nn_for_pixel.png
