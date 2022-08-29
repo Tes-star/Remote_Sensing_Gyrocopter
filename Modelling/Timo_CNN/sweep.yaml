@@ -1,0 +1,96 @@
+command:
+  - python
+early_terminate:
+  eta: 2
+  min_iter: 45
+  type: hyperband
+method: bayes
+metric:
+  goal: minimize
+  name: val_categorical_accuracy
+parameters:
+  activation:
+    distribution: categorical
+    values:
+      - softmax
+      - sigmoid
+  aug_brightness_hard:
+    distribution: uniform
+    max: 0.3
+    min: 0
+  aug_brightness_light:
+    distribution: uniform
+    max: 0.1
+    min: 0
+  aug_brightness_middle:
+    distribution: uniform
+    max: 0.2
+    min: 0
+  aug_contrast_hard:
+    distribution: uniform
+    max: 0.3
+    min: 0
+  aug_contrast_light:
+    distribution: uniform
+    max: 0.1
+    min: 0
+  aug_contrast_middle:
+    distribution: uniform
+    max: 0.2
+    min: 0
+  aug_dropout_hard:
+    distribution: uniform
+    max: 0.3
+    min: 0
+  aug_dropout_light:
+    distribution: uniform
+    max: 0.1
+    min: 0
+  aug_dropout_middle:
+    distribution: uniform
+    max: 0.2
+    min: 0
+  aug_noise_hard:
+    distribution: uniform
+    max: 0.3
+    min: 0
+  aug_noise_light:
+    distribution: uniform
+    max: 0.1
+    min: 0
+  aug_noise_middle:
+    distribution: uniform
+    max: 0.2
+    min: 0
+  backbone:
+    distribution: categorical
+    values:
+      - efficientnetb0
+      - efficientnetb1
+      - efficientnetb2
+      - resnet18
+      - resnet34
+  band_dist:
+    distribution: int_uniform
+    max: 15
+    min: 1
+  batch_size:
+    distribution: int_uniform
+    max: 17
+    min: 1
+  encoder_freeze:
+    distribution: categorical
+    values:
+      - true
+      - false
+  learning_rate:
+    distribution: uniform
+    max: 0.001
+    min: 1e-06
+  loss:
+    distribution: categorical
+    values:
+      - DiceLoss
+      - JaccardLoss
+      - CategoricalCrossentropy
+program: Image_segmentations_sweep.py

@@ -1,19 +1,18 @@
 import io
 import os
-
+import matplotlib.pyplot as plt
 import numpy as np
 import xmltodict as xmltodict
-import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
-
 from matplotlib.collections import PatchCollection
-# print(matplotlib.get_backend())
-# matplotlib.use('Agg')
-
+from matplotlib.patches import Polygon
 # Import Packages
 from spectral.io import envi
-#from spectral import *
-from code.find_path_nextcloud import find_path_nextcloud
+
+# from spectral import *
+from Code.find_path_nextcloud import find_path_nextcloud
+
+# print(matplotlib.get_backend())
+# matplotlib.use('Agg')
 
 # Pfad Nextcloud bestimmen
 path_nextcloud = find_path_nextcloud()
@@ -137,9 +136,7 @@ for filename in files:
     np.seterr(divide='ignore', invalid='ignore')
     import spectral.io.envi as envi
 
-    path_dat_labbeled = r'C:\Users\Timo\Nextcloud\Freigaben\Projekt_Data_Science_1_SS22\Daten_Gyrocopter\Oldenburg\Teilbilder\grid_200_200\labeled\Teilbild_Oldenburg_00000000_00000000_0_0_.dat'
-    path_hdr_labbeled = r'C:\Users\Timo\Nextcloud\Freigaben\Projekt_Data_Science_1_SS22\Daten_Gyrocopter\Oldenburg\Teilbilder\grid_200_200\labeled\Teilbild_Oldenburg_00000000_00000000_0_0_.hdr'
-    # del plots
+
     from matplotlib import pyplot as plt
     fig = plt.figure()
     plt.figure().clear()

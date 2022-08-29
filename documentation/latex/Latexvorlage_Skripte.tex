@@ -1,0 +1,72 @@
+% Dokumentenklasse festlegen
+\documentclass[a4paper, 12pt, chapterprefix=false]{scrreprt}
+
+% ----------------------- Packages importieren ---------------------------
+
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{lastpage}
+\usepackage{pdflscape}
+\usepackage{subfigure}
+\usepackage{float}
+\usepackage{polynom}
+\usepackage{forloop}
+\usepackage[a4paper]{geometry}
+\usepackage{listings}
+\usepackage{fancybox}
+\usepackage{tikz}
+\usepackage{algpseudocode,algorithm,algorithmicx}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{blindtext}
+\usepackage{pdfpages}
+\usepackage{enumitem}
+\usepackage{parskip}
+
+
+
+
+% ----------------------- Seitenlayout ---------------------------
+
+% Größe der Ränder setzen
+\geometry{a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+\parindent= 0pt
+
+% Kopfzeile 
+\pagestyle {fancy}
+\fancyhead[L]{\Modul}
+\fancyhead[C]{Team Gyrocopter}
+\fancyhead[R]{\today}
+
+% Fußzeile
+\fancyfoot[L]{}
+\fancyfoot[C]{}
+\fancyfoot[R]{Seite \thepage /\pageref*{LastPage}}
+
+
+% ----------------------- Layout Überschriften / Abschnitte ---------------------------
+
+\renewcommand*\chapterheadstartvskip{\vspace*{-\topskip}}
+\renewcommand*\chapterheadendvskip{
+\vspace*{1\baselineskip plus .1\baselineskip minus .167\baselineskip}}
+
+
+
+\setkomafont{chapter}{\fontsize{17bp}{18.8bp}\selectfont\bfseries}
+\setkomafont{section}{\fontsize{15bp}{18.8bp}\selectfont\bfseries}
+\setkomafont{subsection}{\fontsize{13bp}{18.8bp}\selectfont\bfseries}
+
+
+% Abstand Auflistung ändern
+\setitemize{itemsep= -2pt}
+\setenumerate{itemsep= -2pt}
+\setstretch{1.15}
+\setlength{\parskip}{1pt}
