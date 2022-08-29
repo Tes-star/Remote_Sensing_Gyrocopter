@@ -68,3 +68,14 @@ Zur Kontrolle der Annotation wurden das RGB-Bild, die Annotation und die Klassen
 ![](data/pred_pictures/cm_train_baseline3_nn_for_pixel.png)
 
 ![](data/pred_pictures/cm_test_baseline3_nn_for_pixel.png)
+
+### Inter-Annotator-Agreement (IAA)
+
+Um die Schwierigkeit der Annotation zu verdeutlichen wurde ein Teilbild von beiden Gruppenmitgliedern annotiert und 
+die Übereinstimmung grafisch und mit Hilfe des IAA-Index bestimmt.
+
+- Inter-Annotator-Agreement = 0,66 -> substantial agreement
+
+![](data/inter_annotator_agreement/Vertauschungsmatrix_Annotation.png)
+
+![](data/inter_annotator_agreement/Vergleich_Annotation.png)
