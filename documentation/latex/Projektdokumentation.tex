@@ -1,7 +1,7 @@
 % ----------------------- Vorlage einlesen ---------------------------
 \input{Latexvorlage_Skripte.tex}
 % ----------------------- Erstellung neuer Kommandos ---------------------------
-\newcommand{\Heading}{Team Gyrcopter}
+\newcommand{\Heading}{Team Gyrocopter}
 \newcommand{\Modul}{Projekt Data Science}
 
 \newcommand{\Dozent}{Dozent: Prof. Dr. Christian Hänig}
@@ -16,7 +16,7 @@
 
 \section{Kontext}
 
-Bei der Findung eines geeigneten Themas für die Projektarbeit des Modul \"Projekt Data Science\" suchten wir
+Bei der Findung eines geeigneten Themas für die Projektarbeit des Modul \glqq Projekt Data Science\grqq{}  suchten wir
 nach einer Problemstellung im Bereich der Bildverarbeitung von Luftaufnahmen.
 In diesem Zusammenhang lernten wir Herrn Prof. Dr. Bannehr vom Fachbereich 3 der Hochschule Anhalt kennen.
 Herr Bannehr befasst sich mit dem Aufgabengebiet der Geodatenerfassung und besitzt am Fachbereich unter anderem einen
@@ -28,48 +28,185 @@ nach Begutachtung der Datengrundlage eine geeignete Aufgabenstellung.
 Die Datengrundlage umfasste die Luftaufnahmen der Befliegung von Oldenburg und Dessau.
 Dabei handelte es sich bei den Datenformaten um Hyperspektral-, Thermal- und Höhenmeter-Daten.
 Leider wurde bei der Befliegung von Dessau aber keine Thermaldaten aufgenommen und weil das übermittelte Gesamtbild
-zusätzliche Prozessierungsfehler erhielten verwendeten wir nur die Daten von Oldenburg.
+Prozessierungsfehler erhielt verwendeten wir nur die Daten von Oldenburg.
 
 \section{Aufgabenstellung}
 Bei der anfänglichen Aufgabenstellung von Herrn Bannehr handelte es sich um einen Klassifikationsvergleich von Dachmaterialien.
 Geplant war der Vergleich der Ergebnisse der Methoden des Fachbereichs 3 zu unseren Ergebnissen mit mehr individualisierbaren Methoden.
-Da sich nach den ersten Wochen der Bearbeitung herausstellte, dass es keine annotierten Daten gibt und keine Vergleichsarbeit gibt,
+Da sich nach den ersten Wochen der Bearbeitung herausstellte, dass es keine annotierten Daten gibt und keine Vergleichsarbeit existiert,
 änderten wir unter Absprach mit Herrn Bannehr das Thema.\\
 Die neue Aufgabenstellung befasste sich nun mit der Bildsegmentierung der Luftaufnahme in acht Klassen, die fast vollständig
 das Bild beschreiben. Zu den klassifizieren Instanzen gehören Wiese, Wald, Schienen, Straße, Auto, See, Häuser und None.
 
 \section{Projektbestandteile und Zeitplan}
+Für die Projektplanung setzten wir uns für jeden Schritt im Cross Industry Standard Process for Data Mining eine Deadline
+und bildeten dementsprechend unsere Work-Packages.
 
-\subsection{}
+\begin{center}
+\includegraphics[width=15cm]{../../data/Zeitplan}
+\end{center}
 
-%% siehe Dokument Work Packages
+\subsection{Bussines und Data Unterstanding}
+Zu Beginn des Projektes mussten wir uns in die Thematik einarbeiten und eine geeignete Aufgabenstellung finden.
+Wir führten eine Recherche zum Thema \glqq Analyse von Hyperspektraldaten mit Hilfe von Python\grqq{}  durch und arbeiteten an
+dem Import der zur Verfügung gestellten Daten.
 
+\subsection{Data Preparation}
+Der Großteil des Projekts beschäftigte sich mit der Datenaufbereitung bzw. -vorverarbeitung.
+Von Beginn an war klar, dass das Gesamtbild mit 3500x1980 Pixel nicht als Ganzes verarbeitet werden kann und wir Teilbilder erzeugen müssen.
+Des Weiteren mussten Bilder annotiert werden und dessen Label den Bildern zugeordnet werden.
+Somit wurde im Teil Data Preparation mehrere Funktionen erstellt, die die im Folgenden aufgelisteten Aufgaben erledigen.
+
+\begin{itemize}
+    \item Hyperspectral-, Thermal- und Oberflächendaten zusammenführen
+    \item Ein Gesamtbild in mehrere Teilbilder zerlegen
+    \item Mehrere Teilbilder zu einem Gesamtbild zusammenführen
+    \item RGB- und DOM-Bilder von Teilbildern erzeugen
+    \item Umwandlung der Annotation vom XML-Format in ein Label-Band
+\end{itemize}
+
+Der Aufwand der Annotation sollte man hierbei jedoch nicht unterschätzen.
+
+\subsection{Modelling}
+Im Bereich des Modellings wendeten wir neben den bekannten Modellen wie z.B. K-Nearest-Neighbors und
+einfachen Neuronalen Netzen, gängige Convolutional Neural Networks (CNN) zur Bildsegmentierung an.
+Vor der eigentlichen Modellierung mussten wir uns zu Beginn in die Programmierbibliotheken und Model-Monitoring-Tools
+einarbeiten.
+
+\subsection{Evaluation}
+Anschließend an das Modelling verglichen wir fortlaufend welche Modelle besser performen und welche Ursachen für
+schlechte Modellergebnisse verantwortlich sein könnten.
+In diesem Kontext führten wir auch ein Inter-Annotator-Agreement durch und verbesserten unsere Annotationsrichtlinien.
+
+\subsection{Deployment / Project Completion}
+Zum Projektende galt es die Gesamtarbeit final zu ordnen und für Dritte verständlich zu vervollständigen.
+Dabei erstellten wir ein Script, dass die Modellvorhersagen für das Gesamtbild durchführt und mit den selbst
+definierten Farbwerten als RGB-Bild abspeichert.
+Zuletzt vervollständigten wir noch Lücken in der Quelltext-Dokumentation und kontrollierten die erforderlichen
+Anforderungen für die Abgabe.
 
 
 \newpage % ----------------------- Neue Seite ---------------------------
 
 \chapter{Projektzusammenfassung}\thispagestyle{fancy}
 
+\section{Aufgabenstellung}
+Im Rahmen dieses Projektes sollen Luftaufnahmen in bis zu 8 Klassen segmentiert werden.
+Zu den klassifizieren Instanzen gehören Wiese, Wald, Schienen, Straße, Auto, See, Häuser und None.
+Die verwendeten Luftaufnahmen stammen aus Befliegung der Stadt Oldenburg aufgenommen vom Gyrocopter des Fachbereichs 3
+der Hochschule Anhalt.
+Die Daten umfassen Hyperspektral-, Thermal- und Höhenmeter-Daten.\\
+
+\begin{center}
+\includegraphics[width=15cm]{../../data/Datengrundlage}
+\end{center}
+
+\section{Verwendete Tools}
+Die gesamte Entwicklung wurde in Python umgesetzt.
+Hierzu wurde insbesondere das Paket spectral zur einfachen Verarbeitung von envi-Daten verwendet.
+
+\section{Datenvorverarbeitung}
+Die Aufnahmen wurden jeweils als getrennte Dateien für Hyperspektral-, Thermal- und Höhenmeterdaten zur Verfügung gestellt.
+Im ersten Vorverarbeitungsschritt wurden diese zusammengeführt, indem die Thermal- und Höhenmeterdaten als einzelne Bänder an die Hyperspektraldaten angefügt wurden.
+Hierbei war von Vorteil, dass die verschiedenen Daten das exakt gleiche Gebiet umfassten, sodass eine Georefferenzierung von Koordinatenpunkten nicht notwendig war.\\
+
+Für die weiteren Verarbeitungsschritte musste das Luftbild in viele Teilbilder unterteilt werden.
+Als Größe haben wir uns für 200x200 Pixel entschieden, da hierdurch bei geringem Informationsverlust der notwendige Rechenaufwand der Neuronalen Netze erheblich reduziert wird.
+
+
 \section{Annotation}
+Da keine annotierten Bilder zur Verfügung standen musste ein Teil der Bilder annotiert werden.
+Hierfür wurde aus verschiedenen Anwendungen das Online Tool Roboflow aufgrund seiner hervorragenden Nutzoberfläche ausgewählt.
+Trotz mehrfacher Anpassung unserer Annotationsrichtlinien konnten wir die RGB Teilbilder nicht konsistent genug annotieren.
+Insbesondere die Unterscheidung von Bäumen und Sträuchern (klassifiziert als Wiesen) war auf dieser Basis nicht möglich.
+Unter gleichzeitiger Betrachtung der Höhendaten war eine Annotation mit einer Übereinstimmung von ca.75\% möglich.
+
+\section{Augmentation}
+Die Bilder wurden mit Hilfe des Packets Albumentations augmentiert.
+Die spezifischen Parameter hierfür wurden im Rahmen der Hyperparameteroptimierung gewählt.
 
 \section{Modellierung}
 
-\section{CNN}
+\subsection{Baseline}
+Als Baseline diente ein einfacher Pixel-basierter Ansatz.
+Hierbei ist jede Instanz ein Pixel und enthält ausschließlich die Hyperspektral-, Thermal- und Höhenmeter-Daten dieses Pixels.
+Modelliert wurde die Baseline durch ein Neuronales Netz (NN) mit folgender Struktur:
 
-\section{Verwendete Tools}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[angle=90, width=15cm]{../../data/models/baseline3_nn_for_pixel}
+\end{center}
+\end{figure}
 
-\section{Evaluierung}
-
-\subsection{Zeitplan}
-
-\subsection{Klassifikationsergebnisse}
-
-\newpage % ----------------------- Neue Seite ---------------------------
-
-
-
-\newpage % ----------------------- Neue Seite ---------------------------
+\subsection{CNN}
+Als Kandidaten für ein geeignetes NN haben wir uns für die Klasse der Convolutional Neural Networks (CNN) entschieden.
+In diesem können effizient zur Klassifikation eines Pixels die Umgebungspixel miteinbezogen werden.
+Hierdurch ist das Netz im Gegensatz zur Baseline in der Lage in den Hidden Layern Formen und Strukturen zu lernen.
+Konkret haben wir auf Basis des vortrainiertes U-Net Model der Bibliothek segmentation\_models zahlreiche Modelle entwickelt.
 
 
+\section{Ergebnisse}
+Insgesamt konnte kein CNN Model die Baseline schlagen.
+Die Vereinfachung des Labelings auf Grünflächen (Wald + Wiese) steigert die Accuracy um 3,3\% auf den Endscore von 80,42\%.
+Dies ist jedoch noch immer schlechter als die Baseline des Standard Labelings.\\
+
+\begin{tabular}[h]{l|c|c}
+Model & label\_mapping & Accuracy\_Testdaten \\
+\hline
+NN for Pixel & Standard & 82,10\% \\
+\hline
+CNN & Standard & 76,76\% \\
+\hline
+CNN & Grünflächen\footnotemark[1] & 80,24\% \\
+\end{tabular}
+
+\smallskip
+
+\footnotemark[1]{Grünflächen: Wald und Wiese bilden eine Klasse}
+
+\bigskip
+
+\textbf{Konfusionsmatrix NN for Pixel Standard:}
+
+\begin{center}
+\includegraphics[height=8cm]{../../data/models/baseline3_nn_for_pixel_confusion_matrix_test_data}
+\end{center}
+
+\smallskip
+
+\textbf{Konfusionsmatrix CNN Standard:}\\
+
+\begin{center}
+\includegraphics[height=4cm]{../../data/models/Konfusionsmatrix_CNN_Standard}
+\end{center}
+
+\smallskip
+
+\textbf{Konfusionsmatrix CNN Grünflächen:}\\
+
+\begin{center}
+\includegraphics[height=4cm]{../../data/models/Konfusionsmatrix_CNN_Gruenflaechen}
+\end{center}
+
+\textbf{Bemerkungen Konfusionsmatrix}
+
+Wie zu erwarten werden Wiesen und Wälder häufig verwechselt.
+Das Grünflächen-Modell kann wie zu erwarten Grünflächen sicher erkennen.
+Beide Modelle können Straßen nicht von None unterscheiden.
+Dies könnte an den als None annotierten Parkplätzen, Gehwegen und sonstigen versiegelten Flächen liegen.
+Häuser konnten von beiden Modellen gut erkannt werden.
+
+
+\section{Optimierungspotenzial}
+Da grundsätzlich CNNs für die Aufgabe der Kategorisierung von Satellitendaten erfolgreich genutzt werden,
+ist davon auszugehen, dass die Erklärung für die vergleichsweise schlechte Performance der CNNs in der Annotation steckt.
+
+\begin{center}
+\includegraphics[width=10cm]{../../data/inter_annotator_agreement/Vertauschungsmatrix_Annotation}
+\end{center}
+
+Das schlechte Inter-Annotater-Agreement zeigt, dass die Qualität der manuellen Annotation nicht ausreichend ist.
+Da wir bezweifeln, dass die ausgewählten Klassen auf den gegebenen Daten erheblich genauer Annotiert werden können,
+sehen wir kein Optimierungspotenzial.
 
 \end{document}

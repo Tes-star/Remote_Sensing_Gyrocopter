@@ -1,3 +1,7 @@
+import numpy as np
+import pandas as pd
+
+
 def get_class_dictionary():
     """
     :return: dictionary key = class_id, value = class_name  
@@ -19,7 +23,7 @@ def map_float_id2rgb(dataframe, column):
     Map class_id to rgb values
     :param dataframe: dataframe which columns represent bands and every row is one pixel 
     :param column: column with map-values (label-column)
-    :return: dataframe with new colum class_color consist of list with rgb values
+    :return: dataframe with new column class_color consist of list with rgb values
     """
     
     df = dataframe.copy()
@@ -44,7 +48,7 @@ def map_int_id2name(dataframe, column):
     Map class_id to rgb values
     :param dataframe: dataframe which columns represent bands and every row is one pixel 
     :param column: column with map-values (label-column)
-    :return: dataframe with new colum class_color consist of list with rgb values
+    :return: dataframe with new column class_color consist of list with rgb values
     """
     
     df = dataframe.copy()
@@ -62,6 +66,36 @@ def map_int_id2name(dataframe, column):
 
     return df
 
+
+def map_rgb2class_id(array):
+    """
+    Map rgb array to class_id values and return dataframe
+    :param array: array with rgb values shape (x,y,3)
+    :return: dataframe with new column class_id
+    """
+
+    arr = array.copy()
+
+    df = pd.DataFrame(np.reshape(arr, (arr.shape[0] * arr.shape[1], 3)))
+
+    for col in df.columns:
+        df[col] = df[col].astype(str)
+
+    df['pred_class_id'] = df[[0, 1, 2]].apply(lambda x: '_'.join(x), axis=1)
+
+    df['pred_class_id'] = df['pred_class_id'].map(
+        {'0_0_0': -1,  # schwarz -> Pixel im nicht annotiertem Bild
+         '51_51_51': 0,  # grauschwarz -> nicht annotierter Pixel im annotierten Bild
+         '188_238_104': 1,  # hellgrün -> Wiese
+         '140_140_140': 2,  # grau -> Straße
+         '255_215_0': 3,  # gelb -> Auto
+         '0_191_255': 4,  # blau -> See
+         '255_20_147': 5,  # pink -> Schienen
+         '205_38_38': 6,  # rot -> Haus
+         '34_139_34': 7  # dunkelgrün -> Wald
+         })
+
+    return df
 
 def new_label_mapping(dataframe, map_column, label_mapping):
     """

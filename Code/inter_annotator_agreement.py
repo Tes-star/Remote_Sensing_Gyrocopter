@@ -1,18 +1,21 @@
 from Code.functions.convert_annotations import convert_xml_annotation_to_mask
 from Code.functions.class_ids import map_float_id2rgb, get_class_list
+from Code.functions.import_labeled_data import import_labeled_data
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
-from statsmodels.stats.inter_rater import fleiss_kappa
 from sklearn.metrics import cohen_kappa_score
 import matplotlib.pyplot as plt
+import tensorflow
 import spectral as spy
 import pandas as pd
 import numpy as np
+import keras
 
 # define parameter
 windowsize_r = 200
 windowsize_c = 200
 path_pictures = '../data/inter_annotator_agreement/unlabeled'
 path_labeled = '../data/inter_annotator_agreement/labeled'
+
 
 # convert Felix annotation
 # path_xml_file = '../data/inter_annotator_agreement/Export_roboflow/Teilbild_Oldenburg_00000006_00000011_1200_2200_Felix.xml'
@@ -39,10 +42,10 @@ def create_files(filename):
     path_dat = filename + '.dat'
     path_hdr = filename + '.hdr'
     img = spy.envi.open(file=path_hdr, image=path_dat)
-    
+
     img_arr = img.load()
 
-    img_df = pd.DataFrame(img_arr.reshape(((img_arr.shape[0]*img_arr.shape[1]), img_arr.shape[2])))
+    img_df = pd.DataFrame(img_arr.reshape(((img_arr.shape[0] * img_arr.shape[1]), img_arr.shape[2])))
 
     # convert annotation ID to class_color
     img_df = map_float_id2rgb(dataframe=img_df, column=109)
@@ -109,8 +112,59 @@ fig.savefig('../data/inter_annotator_agreement/Vertauschungsmatrix_Annotation.pn
 
 # calculate cohen_kappa_score
 iia_score = cohen_kappa_score(y1=img_df_fg[109], y2=img_df_tvw[109])
-print('cohen_kappa_score', str(iia_score))
+print('cohen_kappa_score', str(iia_score))  # 0.66 -> substantial agreement
 
 # calculate accuracy_score
 acc = accuracy_score(y_true=img_df_fg[109], y_pred=img_df_tvw[109])
 print('accuracy_score', str(acc))
+
+# create prediction for annotated subimage
+
+# load models
+nn_for_pixel = keras.models.load_model('../data/models/baseline3_nn_for_pixel.h5')
+# cnn = keras.models.load_model('../data/models/CNN_1.h5')
+
+# import data nn_for_pixel
+df_subimage = import_labeled_data(path_labeled_folder='../data/inter_annotator_agreement/labeled')
+X_nn_for_pixel = df_subimage.drop(columns=['picture_name', 'label'])
+X_nn_for_pixel = tensorflow.convert_to_tensor(X_nn_for_pixel, dtype=tensorflow.float32)
+
+# prediction  nn_for_pixel
+y_pred_nn_for_pixel = nn_for_pixel.predict(X_nn_for_pixel)
+df_subimage['y_pred'] = y_pred_nn_for_pixel.argmax(axis=1)
+
+# split in fg und tvw DataFrame subimage
+df_subimage_fg = df_subimage.loc[df_subimage['picture_name'] == 'Teilbild_Oldenburg_00000006_00000011_1200_2200_Felix',]
+df_subimage_tvw = df_subimage.loc[df_subimage['picture_name'] == 'Teilbild_Oldenburg_00000006_00000011_1200_2200_Timo',]
+
+# compare scores
+
+# complete annotation felix
+cm = confusion_matrix(y_true=df_subimage_fg['label'], y_pred=df_subimage_fg['y_pred'],
+                      labels=[0, 1, 2, 3, 4, 5, 6, 7], normalize='true')
+cmp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=get_class_list())
+fig, ax = plt.subplots(figsize=(10, 10))
+cmp.plot(ax=ax, cmap='Blues')
+plt.title('confusion matrix Felix annotation')
+plt.show()
+
+# complete annotation timo
+cm = confusion_matrix(y_true=df_subimage_tvw['label'], y_pred=df_subimage_tvw['y_pred'],
+                      labels=[0, 1, 2, 3, 4, 5, 6, 7], normalize='true')
+cmp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=get_class_list())
+fig, ax = plt.subplots(figsize=(10, 10))
+cmp.plot(ax=ax, cmap='Blues')
+plt.title('confusion matrix Timo annotation')
+plt.show()
+
+# equal annotation felix and timo
+label_fg = df_subimage_fg['label'].values
+label_tvw = df_subimage_tvw['label'].values
+df_subimage_equal = df_subimage_fg.loc[label_fg==label_tvw, ]
+cm = confusion_matrix(y_true=df_subimage_equal['label'], y_pred=df_subimage_equal['y_pred'],
+                      labels=[0, 1, 2, 3, 4, 5, 6, 7], normalize='true')
+cmp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=get_class_list())
+fig, ax = plt.subplots(figsize=(10, 10))
+cmp.plot(ax=ax, cmap='Blues')
+plt.title('confusion matrix equal annotation')
+plt.show()
