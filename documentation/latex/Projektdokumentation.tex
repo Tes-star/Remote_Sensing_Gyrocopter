@@ -95,7 +95,11 @@ Im Rahmen dieses Projektes sollen Luftaufnahmen in bis zu 8 Klassen segmentiert 
 Zu den klassifizieren Instanzen gehören Wiese, Wald, Schienen, Straße, Auto, See, Häuser und None.
 Die verwendeten Luftaufnahmen stammen aus Befliegung der Stadt Oldenburg aufgenommen vom Gyrocopter des Fachbereichs 3
 der Hochschule Anhalt.
-Die Daten umfassen Hyperspektral-, Thermal- und Höhenmeter-Daten.
+Die Daten umfassen Hyperspektral-, Thermal- und Höhenmeter-Daten.\\
+
+\begin{center}
+\includegraphics[width=15cm]{../../data/Datengrundlage}
+\end{center}
 
 \section{Verwendete Tools}
 Die gesamte Entwicklung wurde in Python umgesetzt.
@@ -104,7 +108,8 @@ Hierzu wurde insbesondere das Paket spectral zur einfachen Verarbeitung von envi
 \section{Datenvorverarbeitung}
 Die Aufnahmen wurden jeweils als getrennte Dateien für Hyperspektral-, Thermal- und Höhenmeterdaten zur Verfügung gestellt.
 Im ersten Vorverarbeitungsschritt wurden diese zusammengeführt, indem die Thermal- und Höhenmeterdaten als einzelne Bänder an die Hyperspektraldaten angefügt wurden.
-Hierbei war von Vorteil, dass die verschiedenen Daten das exakt gleiche Gebiet umfassten, sodass eine Georefferenzierung von Koordinatenpunkten nicht notwendig war.
+Hierbei war von Vorteil, dass die verschiedenen Daten das exakt gleiche Gebiet umfassten, sodass eine Georefferenzierung von Koordinatenpunkten nicht notwendig war.\\
+
 Für die weiteren Verarbeitungsschritte musste das Luftbild in viele Teilbilder unterteilt werden.
 Als Größe haben wir uns für 200x200 Pixel entschieden, da hierdurch bei geringem Informationsverlust der notwendige Rechenaufwand der Neuronalen Netze erheblich reduziert wird.
 
@@ -117,13 +122,15 @@ Insbesondere die Unterscheidung von Bäumen und Sträuchern (klassifiziert als W
 Unter gleichzeitiger Betrachtung der Höhendaten war eine Annotation mit einer Übereinstimmung von ca.75\% möglich.
 
 \section{Augmentation}
+Die Bilder wurden mit Hilfe des Packets Albumentations augmentiert.
+Die spezifischen Parameter hierfür wurden im Rahmen der Hyperparameteroptimierung gewählt.
 
 \section{Modellierung}
 
 \subsection{Baseline}
-Als Baseline diente ein einfacher Pixel-basierter Ansatz. Hierbei ist jede Instanz ein Pixel und enthält ausschließlich
-die Hyperspektral-, Thermal- und Höhenmeter-Daten dieses Pixels.
-Modelliert wurde die Baseline durch ein Neuronales Netz(NN) mit folgender Struktur:
+Als Baseline diente ein einfacher Pixel-basierter Ansatz.
+Hierbei ist jede Instanz ein Pixel und enthält ausschließlich die Hyperspektral-, Thermal- und Höhenmeter-Daten dieses Pixels.
+Modelliert wurde die Baseline durch ein Neuronales Netz (NN) mit folgender Struktur:
 
 \begin{figure}[h]
 \begin{center}
@@ -132,15 +139,52 @@ Modelliert wurde die Baseline durch ein Neuronales Netz(NN) mit folgender Strukt
 \end{figure}
 
 \subsection{CNN}
+Als Kandidaten für ein geeignetes NN haben wir uns für die Klasse der Convolutional Neural Networks (CNN) entschieden.
+In diesem können effizient zur Klassifikation eines Pixels die Umgebungspixel miteinbezogen werden.
+Hierdurch ist das Netz im Gegensatz zur Baseline in der Lage in den Hidden Layern Formen und Strukturen zu lernen.
+Konkret haben wir auf Basis des vortrainiertes U-Net Model der Bibliothek segmentation\_models zahlreiche Modelle entwickelt.
 
-\section{Evaluierung}
+
+\section{Ergebnisse}
+Insgesamt konnte kein CNN Model die Baseline schlagen.
+Die Vereinfachung des Labelings auf Grünflächen (Wald + Wiese) steigert die Accuracy um 3,3\% auf den Endscore von 80,42\%.
+Dies ist jedoch noch immer schlechter als die Baseline des Standard Labelings.\\
+
+\begin{tabular}[h]{l|c|c}
+Model & label\_mapping & Accuracy\_Testdaten \\
+\hline
+NN for Pixel & Standard & 82,10\% \\
+\hline
+CNN & Standard & 76,76\% \\
+\hline
+CNN & Grünflächen\footnotemark[1] & 80,24\% \\
+\end{tabular}
+
+\smallskip
+
+\footnotemark[1]{Grünflächen: Wald und Wiese bilden eine Klasse}
+
+\bigskip
+
+\textbf{Bemerkungen Konfusionsmatrix}
+
+Wie zu erwarten werden Wiesen und Wälder häufig verwechselt.
+Das Grünflächen-Modell kann wie zu erwarten Grünflächen sicher erkennen.
+Beide Modelle können Straßen nicht von None unterscheiden.
+Dies könnte an den als None annotierten Parkplätzen, Gehwegen und sonstigen versiegelten Flächen liegen.
+Häuser konnten von beiden Modellen gut erkannt werden.
 
 
-\section{Hyperparametertuning}
+\section{Optimierungspotenzial}
+Da grundsätzlich CNNs für die Aufgabe der Kategorisierung von Satellitendaten erfolgreich genutzt werden,
+ist davon auszugehen, dass die Erklärung für die vergleichsweise schlechte Performance der CNNs in der Annotation steckt.
 
-\section{Verbesserungspotenzial}
+\begin{center}
+\includegraphics[width=10cm]{../../data/inter_annotator_agreement/Vertauschungsmatrix_Annotation}
+\end{center}
 
-\section{Learnings}
-
+Das schlechte Inter-Annotater-Agreement zeigt, dass die Qualität der manuellen Annotation nicht ausreichend ist.
+Da wir bezweifeln, dass die ausgewählten Klassen auf den gegebenen Daten erheblich genauer Annotiert werden können,
+sehen wir kein Optimierungspotenzial.
 
 \end{document}
